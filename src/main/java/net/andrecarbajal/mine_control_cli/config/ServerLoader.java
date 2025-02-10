@@ -1,6 +1,6 @@
 package net.andrecarbajal.mine_control_cli.config;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
