@@ -1,4 +1,4 @@
-package net.andrecarbajal.mine_control_cli.commands.config;
+package net.andrecarbajal.mine_control_cli.config;
 
 import lombok.extern.slf4j.Slf4j;
 import net.andrecarbajal.mine_control_cli.util.OsChecker;
