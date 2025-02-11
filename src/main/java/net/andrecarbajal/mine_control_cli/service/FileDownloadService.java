@@ -5,7 +5,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -19,7 +20,7 @@ public class FileDownloadService {
         Path path = serverPath.resolve("server.jar");
 
         try {
-            URLConnection connection = new URL(url).openConnection();
+            URLConnection connection = new URI(url).toURL().openConnection();
             int fileSize = connection.getContentLength();
 
             try (ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream()); FileOutputStream fos = new FileOutputStream(path.toFile())) {
@@ -38,7 +39,7 @@ public class FileDownloadService {
                     log.info(String.format("Downloading... %.2f%%", progress), progress);
                 }
             }
-        } catch (IOException e) {
+        } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(String.format("Error downloading file for server %s", e.getMessage()), e);
         }
 
