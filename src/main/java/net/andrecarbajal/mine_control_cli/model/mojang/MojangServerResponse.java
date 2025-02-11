@@ -1,4 +1,4 @@
-package net.andrecarbajal.mine_control_cli.model.vanilla;
+package net.andrecarbajal.mine_control_cli.model.mojang;
 
 import lombok.Getter;
 import lombok.Setter;

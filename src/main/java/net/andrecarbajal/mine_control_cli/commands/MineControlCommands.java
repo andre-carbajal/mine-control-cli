@@ -1,6 +1,7 @@
 package net.andrecarbajal.mine_control_cli.commands;
 
 import net.andrecarbajal.mine_control_cli.config.ServerLoader;
+import net.andrecarbajal.mine_control_cli.service.minecraft.PaperService;
 import net.andrecarbajal.mine_control_cli.service.minecraft.SnapshotService;
 import net.andrecarbajal.mine_control_cli.service.minecraft.VanillaService;
 import net.andrecarbajal.mine_control_cli.validator.FolderNameValidator;
@@ -29,6 +30,9 @@ public class MineControlCommands extends AbstractShellComponent {
 
     @Autowired
     private SnapshotService snapshotService;
+
+    @Autowired
+    private PaperService paperService;
 
     @Command(command = "create", description = "Create a new server")
     public void create(@Option(description = "The name of the server") String name, @Option(description = "The server loader") String serverLoader) {
@@ -65,9 +69,9 @@ public class MineControlCommands extends AbstractShellComponent {
                 snapshotService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
             case PAPER:
+                paperService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
         }
-
     }
 
     @Command(command = "list", alias = "ls", description = "List all the servers")

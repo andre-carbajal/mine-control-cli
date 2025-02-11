@@ -1,8 +1,8 @@
 package net.andrecarbajal.mine_control_cli.service.minecraft;
 
 import net.andrecarbajal.mine_control_cli.exception.ServerCreationException;
-import net.andrecarbajal.mine_control_cli.model.vanilla.MojangServerResponse;
-import net.andrecarbajal.mine_control_cli.model.vanilla.MojangVersionsResponse;
+import net.andrecarbajal.mine_control_cli.model.mojang.MojangServerResponse;
+import net.andrecarbajal.mine_control_cli.model.mojang.MojangVersionsResponse;
 import net.andrecarbajal.mine_control_cli.service.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import org.jline.terminal.Terminal;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public abstract class MojangService {
+public abstract class MojangService implements ILoaderService {
     @Autowired
     private FileDownloadService fileDownloadService;
 
@@ -29,6 +29,7 @@ public abstract class MojangService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final String apiUrl = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
+    @Override
     public void createServer(String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
         List<SelectorItem<String>> items = getVersions().stream()
                 .map(version -> SelectorItem.of(version, version))
@@ -41,7 +42,7 @@ public abstract class MojangService {
                 .run(SingleItemSelector.SingleItemSelectorContext.empty());
         String version = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
 
-        System.out.printf("Creating a %s server, name: %s, version: %s", StringUtils.capitalize(type()), serverName, version);
+        System.out.printf("Creating a %s server, name: %s, version: %s \n", StringUtils.capitalize(type()), serverName, version);
 
         Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverName);
 
@@ -53,7 +54,7 @@ public abstract class MojangService {
             FileUtil.deleteFolder(serverPath);
             throw new ServerCreationException("Error creating server", e);
         }
-        System.out.printf("%s server created successfully", StringUtils.capitalize(type()));
+        System.out.printf("%s server created successfully \n", StringUtils.capitalize(type()));
     }
 
     private List<String> getVersions() {
