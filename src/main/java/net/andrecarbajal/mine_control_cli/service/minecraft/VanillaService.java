@@ -1,6 +1,5 @@
 package net.andrecarbajal.mine_control_cli.service.minecraft;
 
-import lombok.extern.slf4j.Slf4j;
 import net.andrecarbajal.mine_control_cli.exception.ServerCreationException;
 import net.andrecarbajal.mine_control_cli.model.vanilla.VanillaServerResponse;
 import net.andrecarbajal.mine_control_cli.model.vanilla.VanillaVersionsResponse;
