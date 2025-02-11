@@ -7,12 +7,12 @@ import java.util.List;
 
 @Setter
 @Getter
-public class VanillaVersionsResponse {
-    private List<VanillaVersion> versions;
+public class MojangVersionsResponse {
+    private List<Version> versions;
 
     @Setter
     @Getter
-    public static class VanillaVersion {
+    public static class Version {
         private String id;
         private String type;
         private String url;

@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class VanillaServerResponse {
+public class MojangServerResponse {
     private Downloads downloads;
 
     @Setter

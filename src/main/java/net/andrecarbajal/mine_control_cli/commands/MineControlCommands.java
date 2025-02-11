@@ -1,6 +1,7 @@
 package net.andrecarbajal.mine_control_cli.commands;
 
 import net.andrecarbajal.mine_control_cli.config.ServerLoader;
+import net.andrecarbajal.mine_control_cli.service.minecraft.SnapshotService;
 import net.andrecarbajal.mine_control_cli.service.minecraft.VanillaService;
 import net.andrecarbajal.mine_control_cli.validator.FolderNameValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class MineControlCommands extends AbstractShellComponent {
 
     @Autowired
     private VanillaService vanillaService;
+
+    @Autowired
+    private SnapshotService snapshotService;
 
     @Command(command = "create", description = "Create a new server")
     public void create(@Option(description = "The name of the server") String name, @Option(description = "The server loader") String serverLoader) {
@@ -56,6 +60,9 @@ public class MineControlCommands extends AbstractShellComponent {
         switch (ServerLoader.getLoader(serverLoader)) {
             case VANILLA:
                 vanillaService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                break;
+            case SNAPSHOT:
+                snapshotService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
             case PAPER:
                 break;

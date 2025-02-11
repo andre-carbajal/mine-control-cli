@@ -7,6 +7,7 @@ import java.util.List;
 
 public enum ServerLoader {
     VANILLA,
+    SNAPSHOT,
     PAPER;
 
     public static ServerLoader getLoader(String loader) {
