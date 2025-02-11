@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class VanillaService {
     @Autowired
     private FileDownloadService fileDownloadService;
@@ -40,6 +39,8 @@ public class VanillaService {
                 .run(SingleItemSelector.SingleItemSelectorContext.empty());
         String version = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
 
+        System.out.println("Creating a Vanilla server, name: " + serverName + ", version: " + version);
+
         Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverName);
 
         try {
@@ -49,8 +50,7 @@ public class VanillaService {
         } catch (Exception e) {
             throw new ServerCreationException("Error creating server", e);
         }
-
-        System.out.println("Creating a Vanilla server, name: " + serverName + ", version: " + version);
+        System.out.println("Vanilla server created successfully");
     }
 
     private List<String> getVersions() {
@@ -61,7 +61,6 @@ public class VanillaService {
                     .filter(version -> version.getType().equals("release"))
                     .map(VanillaVersionsResponse.VanillaVersion::getId).toList();
         } else {
-            log.error("Failed to retrieve versions from Mojang API");
             throw new RuntimeException("Failed to retrieve versions from Mojang API");
         }
     }
@@ -84,7 +83,6 @@ public class VanillaService {
             throw new RuntimeException("Unable to retrieve server download URL from Mojang API");
 
         } else {
-            log.error("Failed to retrieve server download URL from Mojang API");
             throw new RuntimeException("Failed to retrieve server download URL from Mojang API");
         }
 

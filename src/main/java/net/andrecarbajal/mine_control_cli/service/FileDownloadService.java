@@ -1,6 +1,7 @@
 package net.andrecarbajal.mine_control_cli.service;
 
-import lombok.extern.slf4j.Slf4j;
+import net.andrecarbajal.mine_control_cli.util.ProgressBar;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -13,10 +14,13 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 
-@Slf4j
 @Service
 public class FileDownloadService {
+    @Autowired
+    ProgressBar progressBar;
+
     public void download(String url, Path serverPath) {
+        System.out.println("Downloading files...");
         Path path = serverPath.resolve("server.jar");
 
         try {
@@ -36,12 +40,12 @@ public class FileDownloadService {
 
                     totalBytesRead += bytesRead;
                     double progress = (double) totalBytesRead / fileSize * 100;
-                    log.info(String.format("Downloading... %.2f%%", progress), progress);
+                    progressBar.display((int) progress);
                 }
             }
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(String.format("Error downloading file for server %s", e.getMessage()), e);
         }
-
+        progressBar.reset();
     }
 }

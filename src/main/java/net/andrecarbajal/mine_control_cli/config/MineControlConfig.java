@@ -2,6 +2,8 @@ package net.andrecarbajal.mine_control_cli.config;
 
 import lombok.extern.slf4j.Slf4j;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
+import net.andrecarbajal.mine_control_cli.util.ProgressBar;
+import org.jline.terminal.Terminal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,5 +26,10 @@ public class MineControlConfig {
         }
 
         return "mine-control-cli started";
+    }
+
+    @Bean
+    public ProgressBar progressBar(Terminal terminal) {
+        return new ProgressBar(terminal);
     }
 }
