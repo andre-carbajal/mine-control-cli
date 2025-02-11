@@ -1,6 +1,7 @@
 package net.andrecarbajal.mine_control_cli.service.minecraft;
 
 import lombok.extern.slf4j.Slf4j;
+import net.andrecarbajal.mine_control_cli.exception.ServerCreationException;
 import net.andrecarbajal.mine_control_cli.model.vanilla.VanillaServerResponse;
 import net.andrecarbajal.mine_control_cli.model.vanilla.VanillaVersionsResponse;
 import net.andrecarbajal.mine_control_cli.service.FileDownloadService;
@@ -14,6 +15,7 @@ import org.springframework.shell.style.TemplateExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,9 +40,15 @@ public class VanillaService {
                 .run(SingleItemSelector.SingleItemSelectorContext.empty());
         String version = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
 
+        Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverName);
 
-        FileUtil.createFolder(FileUtil.getMineControlCliFolder().resolve(serverName));
-        fileDownloadService.download(getDownloadUrl(version), serverName);
+        try {
+            FileUtil.createFolder(serverPath);
+            FileUtil.saveEulaFile(serverPath);
+            fileDownloadService.download(getDownloadUrl(version), serverPath);
+        } catch (Exception e) {
+            throw new ServerCreationException("Error creating server", e);
+        }
 
         System.out.println("Creating a Vanilla server, name: " + serverName + ", version: " + version);
     }

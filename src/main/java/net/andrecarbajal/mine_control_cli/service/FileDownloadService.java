@@ -1,7 +1,6 @@
 package net.andrecarbajal.mine_control_cli.service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -16,17 +15,16 @@ import java.nio.file.Path;
 @Slf4j
 @Service
 public class FileDownloadService {
-    public void download(String url, String serverName) {
-        Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverName);
+    public void download(String url, Path serverPath) {
+        Path path = serverPath.resolve("server.jar");
 
         try {
             URLConnection connection = new URL(url).openConnection();
             int fileSize = connection.getContentLength();
 
-            try (ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
-                 FileOutputStream fos = new FileOutputStream(serverPath.toFile())) {
+            try (ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream()); FileOutputStream fos = new FileOutputStream(path.toFile())) {
 
-                ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+                ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
                 int bytesRead;
                 int totalBytesRead = 0;
 
@@ -41,10 +39,7 @@ public class FileDownloadService {
                 }
             }
         } catch (IOException e) {
-            String errorMessage = String.format("Error downloading file for server '%s': %s",
-                    serverName, e.getMessage());
-            log.error(errorMessage, e);
-            throw new RuntimeException(errorMessage, e);
+            throw new RuntimeException(String.format("Error downloading file for server %s", e.getMessage()), e);
         }
 
     }
