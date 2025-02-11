@@ -47,9 +47,10 @@ public abstract class MojangService {
 
         try {
             FileUtil.createFolder(serverPath);
-            FileUtil.saveEulaFile(serverPath);
             fileDownloadService.download(getDownloadUrl(version), serverPath);
+            FileUtil.saveEulaFile(serverPath);
         } catch (Exception e) {
+            FileUtil.deleteFolder(serverPath);
             throw new ServerCreationException("Error creating server", e);
         }
         System.out.printf("%s server created successfully", StringUtils.capitalize(type()));
