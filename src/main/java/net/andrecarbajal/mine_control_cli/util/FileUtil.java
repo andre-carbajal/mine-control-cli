@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class FileUtil {
     public static Path getMineControlCliFolder() {
@@ -35,13 +37,18 @@ public class FileUtil {
     public static void deleteFolder(Path folderPath) {
         try {
             if (!Files.exists(folderPath)) {
-                System.out.println("La carpeta no existe: " + folderPath);
-                return;
+                throw new RuntimeException();
             }
 
             if (!Files.isDirectory(folderPath)) {
-                System.out.println("La ruta no es un directorio: " + folderPath);
-                return;
+                throw new RuntimeException("Path is not a folder");
+            }
+
+            try (Stream<Path> stream = Files.list(folderPath)) {
+                if (stream.findAny().isEmpty()) {
+                    Files.delete(folderPath);
+                    return;
+                }
             }
 
             Files.walkFileTree(folderPath, new SimpleFileVisitor<>() {
@@ -60,6 +67,7 @@ public class FileUtil {
                 }
             });
 
+            Files.delete(folderPath);
         } catch (IOException e) {
             System.out.println("Error deleting folder: " + e.getMessage());
         }
@@ -73,6 +81,16 @@ public class FileUtil {
             Files.writeString(eulaPath, content);
         } catch (IOException e) {
             throw new RuntimeException("Error creating eula file", e);
+        }
+    }
+
+    public static List<String> getFilesInFolder(Path folderPath) {
+        try (Stream<Path> paths = Files.list(folderPath)) {
+            return paths.map(Path::getFileName)
+                    .map(Path::toString)
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException("Error getting files in folder", e);
         }
     }
 }
