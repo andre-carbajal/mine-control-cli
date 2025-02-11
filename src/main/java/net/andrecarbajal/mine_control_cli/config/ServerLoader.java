@@ -4,15 +4,21 @@ import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public enum ServerLoader {
     VANILLA,
     PAPER;
 
-    public static List<String> getLoaders() {
+    public static ServerLoader getLoader(String loader) {
+        return Arrays.stream(ServerLoader.values())
+                .filter(enumValue -> enumValue.name().equalsIgnoreCase(loader))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static List<String> getStringLoader() {
         return Arrays.stream(ServerLoader.values())
                 .map(enumValue -> StringUtils.capitalize(enumValue.name().toLowerCase()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
