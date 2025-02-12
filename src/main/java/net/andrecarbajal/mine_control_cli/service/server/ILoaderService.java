@@ -1,4 +1,4 @@
-package net.andrecarbajal.mine_control_cli.service.minecraft;
+package net.andrecarbajal.mine_control_cli.service.server;
 
 import org.jline.terminal.Terminal;
 import org.springframework.core.io.ResourceLoader;

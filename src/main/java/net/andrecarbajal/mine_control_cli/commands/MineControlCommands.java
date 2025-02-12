@@ -1,9 +1,9 @@
 package net.andrecarbajal.mine_control_cli.commands;
 
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
-import net.andrecarbajal.mine_control_cli.service.minecraft.PaperService;
-import net.andrecarbajal.mine_control_cli.service.minecraft.SnapshotService;
-import net.andrecarbajal.mine_control_cli.service.minecraft.VanillaService;
+import net.andrecarbajal.mine_control_cli.service.server.PaperService;
+import net.andrecarbajal.mine_control_cli.service.server.SnapshotService;
+import net.andrecarbajal.mine_control_cli.service.server.VanillaService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.validator.FolderNameValidator;
 import org.springframework.beans.factory.annotation.Autowired;

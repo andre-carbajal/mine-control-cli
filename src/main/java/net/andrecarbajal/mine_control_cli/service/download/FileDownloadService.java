@@ -1,4 +1,4 @@
-package net.andrecarbajal.mine_control_cli.service;
+package net.andrecarbajal.mine_control_cli.service.download;
 
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,9 +1,9 @@
-package net.andrecarbajal.mine_control_cli.service.minecraft;
+package net.andrecarbajal.mine_control_cli.service.server;
 
 import net.andrecarbajal.mine_control_cli.exception.ServerCreationException;
 import net.andrecarbajal.mine_control_cli.model.paper.PaperBuildResponse;
 import net.andrecarbajal.mine_control_cli.model.paper.PaperResponse;
-import net.andrecarbajal.mine_control_cli.service.FileDownloadService;
+import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import org.jline.terminal.Terminal;
 import org.springframework.beans.factory.annotation.Autowired;
