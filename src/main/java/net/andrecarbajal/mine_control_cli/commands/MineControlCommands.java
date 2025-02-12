@@ -16,6 +16,11 @@ import org.springframework.shell.component.support.SelectorItem;
 import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -95,15 +100,12 @@ public class MineControlCommands extends AbstractShellComponent {
             System.out.println("There are no servers to delete");
             return;
         }
-        List<SelectorItem<String>> items = servers.stream()
-                .map(version -> SelectorItem.of(version, version))
-                .toList();
+        List<SelectorItem<String>> items = servers.stream().map(version -> SelectorItem.of(version, version)).toList();
 
         SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(getTerminal(), items, "Server", null);
         selector.setResourceLoader(getResourceLoader());
         selector.setTemplateExecutor(getTemplateExecutor());
-        SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector
-                .run(SingleItemSelector.SingleItemSelectorContext.empty());
+        SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
         String server = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
 
         ConfirmationInput component = new ConfirmationInput(getTerminal(), "Do you want to delete " + server, false);
@@ -114,13 +116,52 @@ public class MineControlCommands extends AbstractShellComponent {
         if (confirmationInputContext.getResultValue()) {
             FileUtil.deleteFolder(Paths.get(FileUtil.getMineControlCliFolder().toString(), server));
             System.out.println(server + " deleted successfully");
-        }else {
+        } else {
             System.out.println(server + " not deleted");
         }
     }
 
     @Command(command = "start", description = "Start a server")
     public void start() {
+        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
+        if (servers.isEmpty()) {
+            System.out.println("There are no servers to delete");
+            return;
+        }
+        List<SelectorItem<String>> items = servers.stream().map(version -> SelectorItem.of(version, version)).toList();
+
+        SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(getTerminal(), items, "Server to start", null);
+        selector.setResourceLoader(getResourceLoader());
+        selector.setTemplateExecutor(getTemplateExecutor());
+        SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
+        String server = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
+
+        Path serverPath = FileUtil.getMineControlCliFolder().resolve(server);
+        Path jarFilePath = serverPath.resolve("server.jar");
+
+        if (!Files.exists(jarFilePath)) {
+            System.out.println("The server.jar file does not exist in the server folder");
+            return;
+        }
+
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("java", "-Xmx4G", "-jar", jarFilePath.toString(), "nogui");
+            processBuilder.directory(serverPath.toFile());
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }
+
+            int exitCode = process.waitFor();
+            System.out.println("Server exited with code: " + exitCode);
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Error starting the server: " + e.getMessage());
+        }
     }
 
     @Command(command = "loaders", description = "List all the server loaders")
