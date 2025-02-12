@@ -79,14 +79,23 @@ public class MineControlCommands extends AbstractShellComponent {
 
     @Command(command = "list", alias = "ls", description = "List all the servers")
     public void list() {
-        System.out.println("Available servers:");
         List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
+        if (servers.isEmpty()) {
+            System.out.println("There are no servers");
+            return;
+        }
+        System.out.println("Available servers:");
         servers.stream().map(server -> "\t" + (servers.indexOf(server) + 1) + ". " + server).forEach(System.out::println);
     }
 
     @Command(command = "delete", description = "Delete a server")
     public void delete() {
-        List<SelectorItem<String>> items = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder()).stream()
+        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
+        if (servers.isEmpty()) {
+            System.out.println("There are no servers to delete");
+            return;
+        }
+        List<SelectorItem<String>> items = servers.stream()
                 .map(version -> SelectorItem.of(version, version))
                 .toList();
 
