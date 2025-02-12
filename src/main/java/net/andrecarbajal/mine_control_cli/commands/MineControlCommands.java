@@ -17,8 +17,10 @@ import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -125,15 +127,18 @@ public class MineControlCommands extends AbstractShellComponent {
     public void start() {
         List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
         if (servers.isEmpty()) {
-            System.out.println("There are no servers to delete");
+            System.out.println("There are no servers to start");
             return;
         }
-        List<SelectorItem<String>> items = servers.stream().map(version -> SelectorItem.of(version, version)).toList();
+        List<SelectorItem<String>> items = servers.stream()
+                .map(version -> SelectorItem.of(version, version))
+                .toList();
 
         SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(getTerminal(), items, "Server to start", null);
         selector.setResourceLoader(getResourceLoader());
         selector.setTemplateExecutor(getTemplateExecutor());
-        SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
+        SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector
+                .run(SingleItemSelector.SingleItemSelectorContext.empty());
         String server = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
 
         Path serverPath = FileUtil.getMineControlCliFolder().resolve(server);
@@ -150,15 +155,37 @@ public class MineControlCommands extends AbstractShellComponent {
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
+            Thread outputThread = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error reading process output: " + e.getMessage());
                 }
-            }
+            });
+            outputThread.start();
+
+            Thread inputThread = new Thread(() -> {
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
+                    BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+                    String command;
+                    while (process.isAlive() && (command = consoleReader.readLine()) != null) {
+                        writer.write(command);
+                        writer.newLine();
+                        writer.flush();
+                    }
+                } catch (IOException e) {
+                    System.out.println("Error sending command to process: " + e.getMessage());
+                }
+            });
+            inputThread.start();
 
             int exitCode = process.waitFor();
             System.out.println("Server exited with code: " + exitCode);
+
+            inputThread.interrupt();
         } catch (IOException | InterruptedException e) {
             System.out.println("Error starting the server: " + e.getMessage());
         }
