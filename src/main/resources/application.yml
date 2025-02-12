@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: mine-control-cli
+  shell:
+    history:
+      enabled: false
+    interactive:
+      enabled: true
+    command:
+      history:
+        enabled: false

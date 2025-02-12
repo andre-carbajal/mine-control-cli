@@ -1,6 +1,6 @@
 package net.andrecarbajal.mine_control_cli.commands;
 
-import net.andrecarbajal.mine_control_cli.config.ServerLoader;
+import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.minecraft.PaperService;
 import net.andrecarbajal.mine_control_cli.service.minecraft.SnapshotService;
 import net.andrecarbajal.mine_control_cli.service.minecraft.VanillaService;

@@ -1,4 +1,4 @@
-package net.andrecarbajal.mine_control_cli.config;
+package net.andrecarbajal.mine_control_cli.model;
 
 import org.springframework.util.StringUtils;
 
