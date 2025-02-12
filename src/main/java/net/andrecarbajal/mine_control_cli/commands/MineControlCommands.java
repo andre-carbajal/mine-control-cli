@@ -15,6 +15,7 @@ import org.springframework.shell.component.StringInput;
 import org.springframework.shell.component.support.SelectorItem;
 import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,9 +24,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 @Command
@@ -45,102 +46,73 @@ public class MineControlCommands extends AbstractShellComponent {
     private PaperService paperService;
 
     @Command(command = "create", description = "Create a new server")
-    public void create(@Option(description = "The name of the server") String name, @Option(description = "The server loader") String serverLoader) {
-        while (name == null || !folderNameValidator.isValid(name)) {
-            if (name != null) {
-                System.out.println("Invalid folder name. Please enter a valid name:");
-            } else {
-                System.out.println("Please enter the name of the server:");
+    public void create(
+            @Option(description = "The name of the server") String name,
+            @Option(description = "The server loader type") String serverLoader) {
+
+        name = getValidatedServerName(name);
+        ServerLoader loader = getSelectedLoader(serverLoader);
+
+        System.out.printf("Creating new %s server with name: %s", loader, name);
+
+        try {
+            switch (loader) {
+                case VANILLA:
+                    vanillaService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                    break;
+                case SNAPSHOT:
+                    snapshotService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                    break;
+                case PAPER:
+                    paperService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                    break;
             }
-
-            StringInput input = new StringInput(getTerminal());
-            input.setResourceLoader(getResourceLoader());
-            input.setTemplateExecutor(getTemplateExecutor());
-            StringInput.StringInputContext context = input.run(StringInput.StringInputContext.empty());
-            name = context.getResultValue();
-        }
-
-        if (serverLoader == null || ServerLoader.getLoader(serverLoader) == null) {
-            List<SelectorItem<String>> items = ServerLoader.getStringLoader().stream().map(loader -> SelectorItem.of(loader, loader)).toList();
-
-            SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(getTerminal(), items, "Server Loader", null);
-            selector.setResourceLoader(getResourceLoader());
-            selector.setTemplateExecutor(getTemplateExecutor());
-            SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
-            serverLoader = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
-        }
-
-
-        switch (ServerLoader.getLoader(serverLoader)) {
-            case VANILLA:
-                vanillaService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
-                break;
-            case SNAPSHOT:
-                snapshotService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
-                break;
-            case PAPER:
-                paperService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
-                break;
+            System.out.printf("Server %s created successfully", name);
+        } catch (Exception e) {
+            throw new RuntimeException("Server creation failed", e);
         }
     }
 
     @Command(command = "list", alias = "ls", description = "List all the servers")
     public void list() {
-        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
-        if (servers.isEmpty()) {
-            System.out.println("There are no servers");
-            return;
+        try {
+            List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
+
+            if (servers.isEmpty()) {
+                System.out.println("No servers found");
+                return;
+            }
+
+            System.out.println("Available servers:");
+            servers.stream().map(server -> String.format("\t%d. %s", servers.indexOf(server) + 1, server)).forEach(System.out::println);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to list servers", e);
         }
-        System.out.println("Available servers:");
-        servers.stream().map(server -> "\t" + (servers.indexOf(server) + 1) + ". " + server).forEach(System.out::println);
     }
 
     @Command(command = "delete", description = "Delete a server")
     public void delete() {
-        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
-        if (servers.isEmpty()) {
-            System.out.println("There are no servers to delete");
-            return;
-        }
-        List<SelectorItem<String>> items = servers.stream().map(version -> SelectorItem.of(version, version)).toList();
+        try {
+            String serverToDelete = selectServer("Select server to delete");
+            if (serverToDelete == null) return;
 
-        SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(getTerminal(), items, "Server", null);
-        selector.setResourceLoader(getResourceLoader());
-        selector.setTemplateExecutor(getTemplateExecutor());
-        SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
-        String server = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
-
-        ConfirmationInput component = new ConfirmationInput(getTerminal(), "Do you want to delete " + server, false);
-        component.setResourceLoader(getResourceLoader());
-        component.setTemplateExecutor(getTemplateExecutor());
-        ConfirmationInput.ConfirmationInputContext confirmationInputContext = component.run(ConfirmationInput.ConfirmationInputContext.empty());
-
-        if (confirmationInputContext.getResultValue()) {
-            FileUtil.deleteFolder(Paths.get(FileUtil.getMineControlCliFolder().toString(), server));
-            System.out.println(server + " deleted successfully");
-        } else {
-            System.out.println(server + " not deleted");
+            if (confirmDeletion(serverToDelete)) {
+                Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverToDelete);
+                FileUtil.deleteFolder(serverPath);
+                System.out.printf("Server %s deleted successfully%n", serverToDelete);
+            } else {
+                System.out.printf("Server %s deletion cancelled%n", serverToDelete);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete server", e);
         }
     }
 
     @Command(command = "start", description = "Start a server")
     public void start() {
-        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
-        if (servers.isEmpty()) {
-            System.out.println("There are no servers to start");
-            return;
-        }
-        List<SelectorItem<String>> items = servers.stream()
-                .map(version -> SelectorItem.of(version, version))
-                .toList();
+        String server = selectServer("Select server to start");
 
-        SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(getTerminal(), items, "Server to start", null);
-        selector.setResourceLoader(getResourceLoader());
-        selector.setTemplateExecutor(getTemplateExecutor());
-        SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector
-                .run(SingleItemSelector.SingleItemSelectorContext.empty());
-        String server = context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
-
+        assert server != null;
         Path serverPath = FileUtil.getMineControlCliFolder().resolve(server);
         Path jarFilePath = serverPath.resolve("server.jar");
 
@@ -194,7 +166,78 @@ public class MineControlCommands extends AbstractShellComponent {
     @Command(command = "loaders", description = "List all the server loaders")
     public void loaders() {
         System.out.println("Available server loaders:");
-        List<String> loaders = ServerLoader.getStringLoader();
-        loaders.stream().map(loader -> "\t" + (loaders.indexOf(loader) + 1) + ". " + loader).forEach(System.out::println);
+        for (ServerLoader loader : ServerLoader.values()) {
+            System.out.printf("\t%d. %s%n", loader.ordinal() + 1, StringUtils.capitalize(loader.name().toLowerCase()));
+        }
+    }
+
+    private String getValidatedServerName(String name) {
+        if (name != null && folderNameValidator.isValid(name)) {
+            return name;
+        }
+
+        StringInput input = new StringInput(getTerminal());
+        input.setResourceLoader(getResourceLoader());
+        input.setTemplateExecutor(getTemplateExecutor());
+
+        do {
+            if (name != null) {
+                System.out.println("Invalid server name. Please enter a valid name:");
+            } else {
+                System.out.println("Please enter the server name:");
+            }
+
+            StringInput.StringInputContext context = input.run(StringInput.StringInputContext.empty());
+            name = context.getResultValue();
+        } while (!folderNameValidator.isValid(name));
+
+        return name;
+    }
+
+    private ServerLoader getSelectedLoader(String loaderName) {
+        if (loaderName != null) {
+            try {
+                return ServerLoader.valueOf(loaderName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.printf("Invalid loader name provided: %s%n", loaderName);
+            }
+        }
+
+        List<SelectorItem<ServerLoader>> items = Stream.of(ServerLoader.values()).map(loader -> SelectorItem.of(loader.name(), loader)).toList();
+
+        SingleItemSelector<ServerLoader, SelectorItem<ServerLoader>> selector = new SingleItemSelector<>(getTerminal(), items, "Server Loader", null);
+        selector.setResourceLoader(getResourceLoader());
+        selector.setTemplateExecutor(getTemplateExecutor());
+
+        SingleItemSelector.SingleItemSelectorContext<ServerLoader, SelectorItem<ServerLoader>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
+
+        return context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).orElse(ServerLoader.VANILLA);
+    }
+
+    private String selectServer(String prompt) {
+        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
+
+        if (servers.isEmpty()) {
+            System.out.println("No servers available");
+            return null;
+        }
+
+        List<SelectorItem<String>> items = servers.stream().map(server -> SelectorItem.of(server, server)).toList();
+
+        SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(getTerminal(), items, prompt, null);
+        selector.setResourceLoader(getResourceLoader());
+        selector.setTemplateExecutor(getTemplateExecutor());
+
+        SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
+
+        return context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).orElse(null);
+    }
+
+    private boolean confirmDeletion(String serverName) {
+        ConfirmationInput confirmation = new ConfirmationInput(getTerminal(), String.format("Do you want to delete server '%s'?", serverName), false);
+        confirmation.setResourceLoader(getResourceLoader());
+        confirmation.setTemplateExecutor(getTemplateExecutor());
+
+        return confirmation.run(ConfirmationInput.ConfirmationInputContext.empty()).getResultValue();
     }
 }
