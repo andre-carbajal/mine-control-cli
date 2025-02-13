@@ -1,11 +1,13 @@
 package net.andrecarbajal.mine_control_cli.commands;
 
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
+import net.andrecarbajal.mine_control_cli.service.process.ServerProcessManager;
 import net.andrecarbajal.mine_control_cli.service.server.PaperService;
 import net.andrecarbajal.mine_control_cli.service.server.SnapshotService;
 import net.andrecarbajal.mine_control_cli.service.server.VanillaService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.validator.FolderNameValidator;
+import net.andrecarbajal.mine_control_cli.validator.ServerFileValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
@@ -17,12 +19,6 @@ import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +31,12 @@ public class MineControlCommands extends AbstractShellComponent {
 
     @Autowired
     private FolderNameValidator folderNameValidator;
+
+    @Autowired
+    private ServerFileValidator serverFileValidator;
+
+    @Autowired
+    private ServerProcessManager serverProcessManager;
 
     @Autowired
     private VanillaService vanillaService;
@@ -53,7 +55,7 @@ public class MineControlCommands extends AbstractShellComponent {
         name = getValidatedServerName(name);
         ServerLoader loader = getSelectedLoader(serverLoader);
 
-        System.out.printf("Creating new %s server with name: %s", loader, name);
+        System.out.printf("Creating new %s server with name: %s\n", loader, name);
 
         try {
             switch (loader) {
@@ -67,7 +69,7 @@ public class MineControlCommands extends AbstractShellComponent {
                     paperService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
                     break;
             }
-            System.out.printf("Server %s created successfully", name);
+            System.out.printf("Server %s created successfully\n", name);
         } catch (Exception e) {
             throw new RuntimeException("Server creation failed", e);
         }
@@ -99,9 +101,9 @@ public class MineControlCommands extends AbstractShellComponent {
             if (confirmDeletion(serverToDelete)) {
                 Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverToDelete);
                 FileUtil.deleteFolder(serverPath);
-                System.out.printf("Server %s deleted successfully%n", serverToDelete);
+                System.out.printf("Server %s deleted successfully\n", serverToDelete);
             } else {
-                System.out.printf("Server %s deletion cancelled%n", serverToDelete);
+                System.out.printf("Server %s deletion cancelled\n", serverToDelete);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete server", e);
@@ -110,56 +112,22 @@ public class MineControlCommands extends AbstractShellComponent {
 
     @Command(command = "start", description = "Start a server")
     public void start() {
-        String server = selectServer("Select server to start");
-
-        assert server != null;
-        Path serverPath = FileUtil.getMineControlCliFolder().resolve(server);
-        Path jarFilePath = serverPath.resolve("server.jar");
-
-        if (!Files.exists(jarFilePath)) {
-            System.out.println("The server.jar file does not exist in the server folder");
-            return;
-        }
-
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("java", "-Xmx4G", "-jar", jarFilePath.toString(), "nogui");
-            processBuilder.directory(serverPath.toFile());
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
+            String serverToStart = selectServer("Select server to start");
+            if (serverToStart == null) return;
 
-            Thread outputThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error reading process output: " + e.getMessage());
-                }
-            });
-            outputThread.start();
+            Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverToStart);
+            Path jarFilePath = serverPath.resolve("server.jar");
 
-            Thread inputThread = new Thread(() -> {
-                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
-                    BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-                    String command;
-                    while (process.isAlive() && (command = consoleReader.readLine()) != null) {
-                        writer.write(command);
-                        writer.newLine();
-                        writer.flush();
-                    }
-                } catch (IOException e) {
-                    System.out.println("Error sending command to process: " + e.getMessage());
-                }
-            });
-            inputThread.start();
+            if (!serverFileValidator.isValid(jarFilePath.toString())) {
+                System.out.println("Server files are invalid or missing");
+                return;
+            }
 
-            int exitCode = process.waitFor();
-            System.out.println("Server exited with code: " + exitCode);
-
-            inputThread.interrupt();
-        } catch (IOException | InterruptedException e) {
-            System.out.println("Error starting the server: " + e.getMessage());
+            System.out.printf("Starting server: %s\n", serverToStart);
+            serverProcessManager.startServer(serverPath, jarFilePath);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to start server", e);
         }
     }
 
@@ -167,7 +135,7 @@ public class MineControlCommands extends AbstractShellComponent {
     public void loaders() {
         System.out.println("Available server loaders:");
         for (ServerLoader loader : ServerLoader.values()) {
-            System.out.printf("\t%d. %s%n", loader.ordinal() + 1, StringUtils.capitalize(loader.name().toLowerCase()));
+            System.out.printf("\t%d. %s\n", loader.ordinal() + 1, StringUtils.capitalize(loader.name().toLowerCase()));
         }
     }
 
@@ -199,7 +167,7 @@ public class MineControlCommands extends AbstractShellComponent {
             try {
                 return ServerLoader.valueOf(loaderName.toUpperCase());
             } catch (IllegalArgumentException e) {
-                System.out.printf("Invalid loader name provided: %s%n", loaderName);
+                System.out.printf("Invalid loader name provided: %s\n", loaderName);
             }
         }
 
