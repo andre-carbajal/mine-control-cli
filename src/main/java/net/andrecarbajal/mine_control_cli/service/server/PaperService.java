@@ -39,7 +39,7 @@ public class PaperService implements ILoaderService {
 
         System.out.printf("Creating a Paper server, name: %s, version: %s \n", serverName, version);
 
-        Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverName);
+        Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverName);
 
         try {
             FileUtil.createFolder(serverPath);

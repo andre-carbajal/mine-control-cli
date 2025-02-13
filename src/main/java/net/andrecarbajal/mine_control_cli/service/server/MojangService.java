@@ -44,7 +44,7 @@ public abstract class MojangService implements ILoaderService {
 
         System.out.printf("Creating a %s server, name: %s, version: %s \n", StringUtils.capitalize(type()), serverName, version);
 
-        Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverName);
+        Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverName);
 
         try {
             FileUtil.createFolder(serverPath);

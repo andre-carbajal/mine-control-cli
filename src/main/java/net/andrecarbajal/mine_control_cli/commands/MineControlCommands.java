@@ -78,7 +78,7 @@ public class MineControlCommands extends AbstractShellComponent {
     @Command(command = "list", alias = "ls", description = "List all the servers")
     public void list() {
         try {
-            List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
+            List<String> servers = FileUtil.getFilesInFolder(FileUtil.getServerInstancesFolder());
 
             if (servers.isEmpty()) {
                 System.out.println("No servers found");
@@ -99,7 +99,7 @@ public class MineControlCommands extends AbstractShellComponent {
             if (serverToDelete == null) return;
 
             if (confirmDeletion(serverToDelete)) {
-                Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverToDelete);
+                Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverToDelete);
                 FileUtil.deleteFolder(serverPath);
                 System.out.printf("Server %s deleted successfully\n", serverToDelete);
             } else {
@@ -116,7 +116,7 @@ public class MineControlCommands extends AbstractShellComponent {
             String serverToStart = selectServer("Select server to start");
             if (serverToStart == null) return;
 
-            Path serverPath = FileUtil.getMineControlCliFolder().resolve(serverToStart);
+            Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverToStart);
             Path jarFilePath = serverPath.resolve("server.jar");
 
             if (!serverFileValidator.isValid(jarFilePath.toString())) {
@@ -183,7 +183,7 @@ public class MineControlCommands extends AbstractShellComponent {
     }
 
     private String selectServer(String prompt) {
-        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getMineControlCliFolder());
+        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getServerInstancesFolder());
 
         if (servers.isEmpty()) {
             System.out.println("No servers available");

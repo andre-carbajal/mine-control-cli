@@ -23,6 +23,10 @@ public class FileUtil {
         return Paths.get(folder, Application.APP_FOLDER_NAME);
     }
 
+    public static Path getServerInstancesFolder() {
+        return getMineControlCliFolder().resolve("instances");
+    }
+
     public static void createFolder(Path path) {
         if (Files.exists(path)) {
             throw new RuntimeException("Folder already exists");
