@@ -27,6 +27,13 @@ public class FileUtil {
         return getMineControlCliFolder().resolve("instances");
     }
 
+    public static Path getServerBackupsFolder() {
+        Path backupsFolder = getMineControlCliFolder().resolve("backups");
+        if (!Files.exists(backupsFolder))
+            createFolder(backupsFolder);
+        return backupsFolder;
+    }
+
     public static void createFolder(Path path) {
         if (Files.exists(path)) {
             throw new RuntimeException("Folder already exists");

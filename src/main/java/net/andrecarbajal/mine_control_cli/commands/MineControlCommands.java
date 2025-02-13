@@ -6,6 +6,7 @@ import net.andrecarbajal.mine_control_cli.service.server.PaperService;
 import net.andrecarbajal.mine_control_cli.service.server.SnapshotService;
 import net.andrecarbajal.mine_control_cli.service.server.VanillaService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
+import net.andrecarbajal.mine_control_cli.util.ZipUtils;
 import net.andrecarbajal.mine_control_cli.validator.FolderNameValidator;
 import net.andrecarbajal.mine_control_cli.validator.ServerFileValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -34,6 +37,9 @@ public class MineControlCommands extends AbstractShellComponent {
 
     @Autowired
     private ServerFileValidator serverFileValidator;
+
+    @Autowired
+    private ZipUtils zipUtils;
 
     @Autowired
     private ServerProcessManager serverProcessManager;
@@ -136,6 +142,24 @@ public class MineControlCommands extends AbstractShellComponent {
         System.out.println("Available server loaders:");
         for (ServerLoader loader : ServerLoader.values()) {
             System.out.printf("\t%d. %s\n", loader.ordinal() + 1, StringUtils.capitalize(loader.name().toLowerCase()));
+        }
+    }
+
+    @Command(command = "backup", description = "Backup a server")
+    public void backup() {
+        try {
+            String serverToBackup = selectServer("Select sever to backup");
+            if (serverToBackup == null) return;
+
+            Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverToBackup);
+            String fileName = serverToBackup + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"));
+            Path zipFilePath = FileUtil.getServerBackupsFolder().resolve(fileName + ".zip");
+
+            zipUtils.zipFolder(serverPath.toString(), zipFilePath.toString());
+
+            System.out.println("Server backed up successfully");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to backup server", e);
         }
     }
 
