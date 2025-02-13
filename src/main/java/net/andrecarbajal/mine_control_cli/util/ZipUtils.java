@@ -15,7 +15,6 @@ public class ZipUtils {
     @Autowired
     ProgressBar progressBar;
 
-
     public void zipFolder(String sourceFolderPath, String zipFilePath) throws IOException {
         System.out.println("Starting backup ...");
         FileOutputStream fos = new FileOutputStream(zipFilePath);
