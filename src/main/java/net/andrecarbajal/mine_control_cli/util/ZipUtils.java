@@ -33,7 +33,9 @@ public class ZipUtils {
     }
 
     private void addFolderToZip(File folder, String parentFolder, ZipOutputStream zos, long totalSize, long[] compressedSize) throws IOException {
-        for (File file : folder.listFiles()) {
+        File[] files = folder.listFiles();
+        if (files == null) return;
+        for (File file : files) {
             if (file.isDirectory()) {
                 addFolderToZip(file, parentFolder + "/" + file.getName(), zos, totalSize, compressedSize);
                 continue;
@@ -59,7 +61,9 @@ public class ZipUtils {
 
     private long calculateTotalSize(File folder) {
         long totalSize = 0;
-        for (File file : folder.listFiles()) {
+        File[] files = folder.listFiles();
+        if (files == null) return totalSize;
+        for (File file : files) {
             if (file.isDirectory()) {
                 totalSize += calculateTotalSize(file);
             } else {
