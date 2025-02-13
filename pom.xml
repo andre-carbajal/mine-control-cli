@@ -110,6 +110,9 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<systemPropertyVariables>
+						<native.encoding>UTF-8</native.encoding>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 		</plugins>

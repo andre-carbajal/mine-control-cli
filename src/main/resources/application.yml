@@ -1,11 +1,19 @@
 spring:
   application:
     name: mine-control-cli
+  main:
+    banner-mode: off
   shell:
     history:
       enabled: false
     interactive:
       enabled: true
     command:
+      quit:
+        enabled: false
       history:
         enabled: false
+
+logging:
+  level:
+    root: off
