@@ -23,6 +23,10 @@ public class FileUtil {
         return Paths.get(folder, Application.APP_FOLDER_NAME);
     }
 
+    public static Path getConfiguration() {
+        return getMineControlCliFolder().resolve("config.properties");
+    }
+
     public static Path getServerInstancesFolder() {
         return getMineControlCliFolder().resolve("instances");
     }
