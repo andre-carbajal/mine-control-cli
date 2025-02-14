@@ -38,6 +38,7 @@ public class ServerProcessManager {
             System.out.println("Server exited with code: " + exitCode);
 
             inputThread.interrupt();
+            inputThread.join();
         } catch (IOException | InterruptedException e) {
             throw new ServerStartException("Failed to start server", e);
         }
@@ -54,7 +55,9 @@ public class ServerProcessManager {
                     writer.flush();
                 }
             } catch (IOException e) {
-                System.out.println("Error sending command to process: " + e.getMessage());
+                if (process.isAlive()) {
+                    System.out.println("Error sending command to process: " + e.getMessage());
+                }
             }
         });
         inputThread.start();
@@ -65,4 +68,3 @@ public class ServerProcessManager {
         return new ProcessBuilder("java", "-Xmx4G", "-jar", jarFilePath.toString(), "nogui");
     }
 }
-
