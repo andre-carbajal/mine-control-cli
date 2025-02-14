@@ -3,11 +3,9 @@ package net.andrecarbajal.mine_control_cli.service.server;
 import net.andrecarbajal.mine_control_cli.model.mojang.MojangServerResponse;
 import net.andrecarbajal.mine_control_cli.model.mojang.MojangVersionsResponse;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public abstract class MojangService extends AbstractMinecraftService {
     public abstract String type();
 
