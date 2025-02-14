@@ -35,7 +35,7 @@ public class ServerProcessManager {
             Thread inputThread = getThread(process);
 
             int exitCode = process.waitFor();
-            System.out.println("Server exited with code: " + exitCode);
+            System.out.printf("Server exited with code: %s \nPress enter to exit", exitCode);
 
             inputThread.interrupt();
             inputThread.join();
