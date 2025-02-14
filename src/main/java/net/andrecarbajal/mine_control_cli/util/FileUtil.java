@@ -48,11 +48,11 @@ public class FileUtil {
     public static void deleteFolder(Path folderPath) {
         try {
             if (!Files.exists(folderPath)) {
-                throw new RuntimeException();
+                throw new RuntimeException("Folder does not exist: " + folderPath);
             }
 
             if (!Files.isDirectory(folderPath)) {
-                throw new RuntimeException("Path is not a folder");
+                throw new RuntimeException("Path is not a folder: " + folderPath);
             }
 
             try (Stream<Path> stream = Files.list(folderPath)) {
@@ -80,7 +80,7 @@ public class FileUtil {
 
             Files.delete(folderPath);
         } catch (IOException e) {
-            System.out.println("Error deleting folder: " + e.getMessage());
+            throw new RuntimeException("Error deleting folder: " + folderPath, e);
         }
     }
 
