@@ -20,10 +20,16 @@ public class DefaultConfig {
             try (FileInputStream fis = new FileInputStream(configPath.toFile())) {
                 properties.load(fis);
                 validator.validateConfig(properties);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                properties.clear();
+                setDefaultProperties(properties);
+                try (FileOutputStream fos = new FileOutputStream(configPath.toFile())) {
+                    properties.store(fos, "Reset to default after validation failure");
+                }
             }
         } else {
-            properties.setProperty("server.ram", "2G");
-
+            setDefaultProperties(properties);
             configPath.getParent().toFile().mkdirs();
             try (FileOutputStream fos = new FileOutputStream(configPath.toFile())) {
                 properties.store(fos, "Default config");
@@ -31,5 +37,9 @@ public class DefaultConfig {
             System.out.println("Config file created at: " + configPath);
         }
         return properties;
+    }
+
+    private static void setDefaultProperties(Properties properties) {
+        properties.setProperty("server.ram", "2G");
     }
 }
