@@ -6,7 +6,7 @@ import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 
 import java.util.List;
 
-public abstract class MojangService extends AbstractMinecraftService {
+public abstract class MojangService extends AbstractUnmoddedService {
     public abstract String type();
 
     public MojangService(FileDownloadService fileDownloadService) {

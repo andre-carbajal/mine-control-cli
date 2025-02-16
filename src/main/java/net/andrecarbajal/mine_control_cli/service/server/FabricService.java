@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class FabricService extends AbstractMinecraftService {
+public class FabricService extends AbstractModdedLoaderService {
     public FabricService(FileDownloadService fileDownloadService) {
         super(fileDownloadService);
     }
@@ -53,7 +53,8 @@ public class FabricService extends AbstractMinecraftService {
         }
     }
 
-    public String getLatestLoaderVersion() {
+    @Override
+    protected List<String> getLoaderVersions() {
         ParameterizedTypeReference<List<FabricLoaderResponse>> responseType =
                 new ParameterizedTypeReference<>() {
                 };
@@ -62,14 +63,14 @@ public class FabricService extends AbstractMinecraftService {
                 restTemplate.exchange(getApiUrl() + "loader", HttpMethod.GET, null, responseType);
 
         if (response.getBody() != null) {
-            return response.getBody().stream().filter(FabricLoaderResponse::isStable).map(FabricLoaderResponse::getVersion).toList().stream().findFirst().orElse(null);
+            return response.getBody().stream().filter(FabricLoaderResponse::isStable).map(FabricLoaderResponse::getVersion).toList();
         } else {
             throw new RuntimeException("Error getting Fabric versions");
         }
     }
 
     @Override
-    protected String getDownloadUrl(String version) {
-        return getApiUrl() + "loader/" + version + "/" + getLatestLoaderVersion() + "/" + getLatestInstallerVersion() + "/server/jar";
+    protected String getDownloadUrl(String version, String loaderVersion) {
+        return getApiUrl() + "loader/" + version + "/" + loaderVersion + "/" + getLatestInstallerVersion() + "/server/jar";
     }
 }

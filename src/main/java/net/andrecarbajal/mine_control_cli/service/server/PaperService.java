@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class PaperService extends AbstractMinecraftService {
+public class PaperService extends AbstractUnmoddedService {
     public PaperService(FileDownloadService fileDownloadService) {
         super(fileDownloadService);
     }

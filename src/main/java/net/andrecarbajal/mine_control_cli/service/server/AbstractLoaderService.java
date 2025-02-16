@@ -15,32 +15,19 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public abstract class AbstractMinecraftService implements ILoaderService {
+public abstract class AbstractLoaderService {
 
     protected final FileDownloadService fileDownloadService;
 
     protected final RestTemplate restTemplate = new RestTemplate();
 
-    @Override
-    public void createServer(String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
-        Path serverPath = prepareServerDirectory(serverName);
-        try {
-            String version = selectVersion(terminal, resourceLoader, templateExecutor);
-            downloadServerFiles(version, serverPath);
-            acceptEula(serverPath);
-            logServerCreationSuccess(serverName, version);
-        } catch (Exception e) {
-            deleteServerDirectory(FileUtil.getMineControlCliFolder().resolve(serverName));
-        }
-    }
+    public abstract void createServer(String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor);
 
     protected abstract String getApiUrl();
 
     protected abstract List<String> getVersions();
 
-    protected abstract String getDownloadUrl(String version);
-
-    private String selectVersion(Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
+    protected String selectVersion(Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
         List<SelectorItem<String>> items = getVersions().stream().map(version -> SelectorItem.of(version, version)).toList();
 
         SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(terminal, items, "Minecraft Version", null);
@@ -50,26 +37,21 @@ public abstract class AbstractMinecraftService implements ILoaderService {
         return context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
     }
 
-    private Path prepareServerDirectory(String serverName) {
+    protected Path prepareServerDirectory(String serverName) {
         Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverName);
         FileUtil.createFolder(serverPath);
         return serverPath;
     }
 
-    private void downloadServerFiles(String version, Path serverPath) {
-        String downloadUrl = getDownloadUrl(version);
-        fileDownloadService.downloadFile(downloadUrl, serverPath, "server.jar");
-    }
-
-    private void acceptEula(Path serverPath) {
+    protected void acceptEula(Path serverPath) {
         FileUtil.saveEulaFile(serverPath);
     }
 
-    private void logServerCreationSuccess(String serverName, String version) {
+    protected void logServerCreationSuccess(String serverName, String version) {
         System.out.println("Server created successfully: " + serverName + " (version: " + version + ")");
     }
 
-    private void deleteServerDirectory(Path serverPath) {
+    protected void deleteServerDirectory(Path serverPath) {
         FileUtil.deleteFolder(serverPath);
     }
 }
