@@ -38,14 +38,4 @@ public class ConfigValidator {
                     String.join("\n", errors));
         }
     }
-
-    public String getValidationRules() {
-        StringBuilder rules = new StringBuilder("Validation rules:\n");
-        for (IPropertyValidator validator : validators.values()) {
-            rules.append("- ").append(validator.getPropertyName())
-                    .append(": ").append(validator.getDescription())
-                    .append("\n");
-        }
-        return rules.toString();
-    }
 }

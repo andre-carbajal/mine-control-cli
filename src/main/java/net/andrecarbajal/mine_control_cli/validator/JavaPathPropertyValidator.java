@@ -2,7 +2,7 @@ package net.andrecarbajal.mine_control_cli.validator;
 
 public class JavaPathPropertyValidator extends BasePropertyValidator {
     protected JavaPathPropertyValidator() {
-        super("java.path", "Path to the Java executable");
+        super("java.path", "Path to the Java executable (e.g., C:\\\\Program Files\\\\Java\\\\jdk\\\\bin\\\\java.exe or /usr/bin/java)");
     }
 
     @Override
