@@ -31,7 +31,11 @@ public class FabricService extends AbstractMinecraftService {
         ResponseEntity<List<FabricVersionResponse>> response =
                 restTemplate.exchange(getApiUrl() + "game", HttpMethod.GET, null, responseType);
 
-        return response.getBody().stream().filter(FabricVersionResponse::isStable).map(FabricVersionResponse::getVersion).toList();
+        if (response.getBody() != null) {
+            return response.getBody().stream().filter(FabricVersionResponse::isStable).map(FabricVersionResponse::getVersion).toList();
+        } else {
+            throw new RuntimeException("Error getting Fabric versions");
+        }
     }
 
     private String getLatestInstallerVersion() {
@@ -42,7 +46,11 @@ public class FabricService extends AbstractMinecraftService {
         ResponseEntity<List<FabricInstallerResponse>> response =
                 restTemplate.exchange(getApiUrl() + "installer", HttpMethod.GET, null, responseType);
 
-        return response.getBody().stream().filter(FabricInstallerResponse::isStable).map(FabricInstallerResponse::getVersion).toList().stream().findFirst().orElse(null);
+        if (response.getBody() != null) {
+            return response.getBody().stream().filter(FabricInstallerResponse::isStable).map(FabricInstallerResponse::getVersion).toList().stream().findFirst().orElse(null);
+        } else {
+            throw new RuntimeException("Error getting Fabric versions");
+        }
     }
 
     public String getLatestLoaderVersion() {
@@ -53,7 +61,11 @@ public class FabricService extends AbstractMinecraftService {
         ResponseEntity<List<FabricLoaderResponse>> response =
                 restTemplate.exchange(getApiUrl() + "loader", HttpMethod.GET, null, responseType);
 
-        return response.getBody().stream().filter(FabricLoaderResponse::isStable).map(FabricLoaderResponse::getVersion).toList().stream().findFirst().orElse(null);
+        if (response.getBody() != null) {
+            return response.getBody().stream().filter(FabricLoaderResponse::isStable).map(FabricLoaderResponse::getVersion).toList().stream().findFirst().orElse(null);
+        } else {
+            throw new RuntimeException("Error getting Fabric versions");
+        }
     }
 
     @Override
