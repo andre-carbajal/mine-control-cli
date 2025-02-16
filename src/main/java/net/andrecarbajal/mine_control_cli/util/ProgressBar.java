@@ -24,6 +24,7 @@ public class ProgressBar {
     Terminal terminal;
 
     private boolean started = false;
+    private int lastPercentage = 0;
 
     public ProgressBar(Terminal terminal) {
         this.terminal = terminal;
@@ -37,6 +38,9 @@ public class ProgressBar {
         if (!started) {
             started = true;
             terminal.writer().println();
+        }
+        if (percentage == lastPercentage) {
+            return;
         }
         int x = (percentage / 5);
         int y = 20 - x;
@@ -52,6 +56,7 @@ public class ProgressBar {
     }
 
     public void reset() {
+        lastPercentage = 0;
         started = false;
     }
 }

@@ -19,15 +19,17 @@ public class FileDownloadService {
     @Autowired
     ProgressBar progressBar;
 
-    public void download(String url, Path serverPath) {
+    public void downloadFile(String url, Path serverPath, String fileName) {
         System.out.println("Downloading files...");
-        Path path = serverPath.resolve("server.jar");
+        Path path = serverPath.resolve(fileName);
 
         try {
             URLConnection connection = new URI(url).toURL().openConnection();
+            connection.setRequestProperty("Accept", "application/octet-stream,*/*");
             int fileSize = connection.getContentLength();
 
-            try (ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream()); FileOutputStream fos = new FileOutputStream(path.toFile())) {
+            try (ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+                 FileOutputStream fos = new FileOutputStream(path.toFile())) {
 
                 ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
                 int bytesRead;
@@ -39,13 +41,16 @@ public class FileDownloadService {
                     buffer.clear();
 
                     totalBytesRead += bytesRead;
-                    double progress = (double) totalBytesRead / fileSize * 100;
-                    progressBar.display((int) progress);
+                    if (fileSize > 0) {
+                        double progress = (double) totalBytesRead / fileSize * 100;
+                        progressBar.display((int) progress);
+                    }
                 }
             }
         } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException(String.format("Error downloading file for server %s", e.getMessage()), e);
+            throw new RuntimeException("Error downloading file", e);
+        } finally {
+            progressBar.reset();
         }
-        progressBar.reset();
     }
 }

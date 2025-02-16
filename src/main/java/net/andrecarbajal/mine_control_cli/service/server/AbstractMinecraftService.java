@@ -1,7 +1,6 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
 import lombok.RequiredArgsConstructor;
-import net.andrecarbajal.mine_control_cli.exception.ServerCreationException;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import org.jline.terminal.Terminal;
@@ -24,18 +23,15 @@ public abstract class AbstractMinecraftService implements ILoaderService {
 
     @Override
     public void createServer(String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
+        Path serverPath = prepareServerDirectory(serverName);
         try {
             String version = selectVersion(terminal, resourceLoader, templateExecutor);
-            Path serverPath = prepareServerDirectory(serverName);
-
             downloadServerFiles(version, serverPath);
             acceptEula(serverPath);
             logServerCreationSuccess(serverName, version);
         } catch (Exception e) {
             deleteServerDirectory(FileUtil.getMineControlCliFolder().resolve(serverName));
-            throw new ServerCreationException("Failed to create server: " + serverName, e);
         }
-
     }
 
     protected abstract String getApiUrl();
@@ -62,7 +58,7 @@ public abstract class AbstractMinecraftService implements ILoaderService {
 
     private void downloadServerFiles(String version, Path serverPath) {
         String downloadUrl = getDownloadUrl(version);
-        fileDownloadService.download(downloadUrl, serverPath);
+        fileDownloadService.downloadFile(downloadUrl, serverPath, "server.jar");
     }
 
     private void acceptEula(Path serverPath) {
