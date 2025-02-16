@@ -69,16 +69,16 @@ public class MineControlCommands extends AbstractShellComponent {
 
         switch (loader) {
             case VANILLA:
-                vanillaService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                vanillaService.createServer(ServerLoader.VANILLA, name, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
             case SNAPSHOT:
-                snapshotService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                snapshotService.createServer(ServerLoader.SNAPSHOT, name, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
             case FABRIC:
-                fabricService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                fabricService.createServer(ServerLoader.FABRIC, name, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
             case PAPER:
-                paperService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                paperService.createServer(ServerLoader.PAPER, name, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
         }
     }

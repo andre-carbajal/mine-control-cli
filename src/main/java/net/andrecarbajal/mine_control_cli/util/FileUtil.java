@@ -1,6 +1,7 @@
 package net.andrecarbajal.mine_control_cli.util;
 
 import net.andrecarbajal.mine_control_cli.Application;
+import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -99,11 +100,71 @@ public class FileUtil {
         }
     }
 
+    public static void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version) {
+        Path infoPath = serverPath.resolve("mineControlServer.info");
+        String content = String.format("serverLoader: %s\nversion: %s", serverLoader, version);
+
+        try {
+            Files.writeString(infoPath, content);
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating server info file", e);
+        }
+    }
+
+    public static void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version, String loader) {
+        Path infoPath = serverPath.resolve("mineControlServer.info");
+        String content = String.format("serverLoader: %s\nversion: %s\nloader: %s", serverLoader, version, loader);
+
+        try {
+            Files.writeString(infoPath, content);
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating server info file", e);
+        }
+    }
+
     public static List<String> getFilesInFolder(Path folderPath) {
         try (Stream<Path> paths = Files.list(folderPath)) {
-            return paths.map(Path::getFileName)
-                    .map(Path::toString)
-                    .toList();
+            return paths.map(path -> {
+                String folderName = path.getFileName().toString();
+                Path infoPath = path.resolve("mineControlServer.info");
+                if (Files.exists(infoPath)) {
+                    try {
+                        List<String> lines = Files.readAllLines(infoPath);
+                        String serverLoader = lines.stream()
+                                .filter(line -> line.startsWith("serverLoader:"))
+                                .map(line -> line.split(": ", 2))
+                                .filter(parts -> parts.length == 2)
+                                .map(parts -> parts[1])
+                                .findFirst()
+                                .orElse("Unknown");
+
+                        String version = lines.stream()
+                                .filter(line -> line.startsWith("version:"))
+                                .map(line -> line.split(": ", 2))
+                                .filter(parts -> parts.length == 2)
+                                .map(parts -> parts[1])
+                                .findFirst()
+                                .orElse("Unknown");
+
+                        String loader = lines.stream()
+                                .filter(line -> line.startsWith("loader:"))
+                                .map(line -> line.split(": ", 2))
+                                .filter(parts -> parts.length == 2)
+                                .map(parts -> parts[1])
+                                .findFirst()
+                                .orElse(null);
+
+                        if (loader != null)
+                            return String.format("%s (%s-%s-%s)", folderName, serverLoader, version, loader);
+                        else
+                            return String.format("%s (%s-%s)", folderName, serverLoader, version);
+                    } catch (IOException e) {
+                        return folderName + " (Unknown)";
+                    }
+                } else {
+                    return folderName + " (Unknown)";
+                }
+            }).toList();
         } catch (IOException e) {
             throw new RuntimeException("Error getting files in folder", e);
         }

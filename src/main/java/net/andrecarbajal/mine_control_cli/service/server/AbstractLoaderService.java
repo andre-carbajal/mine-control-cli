@@ -1,6 +1,7 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
 import lombok.RequiredArgsConstructor;
+import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import org.jline.terminal.Terminal;
@@ -21,7 +22,7 @@ public abstract class AbstractLoaderService {
 
     protected final RestTemplate restTemplate = new RestTemplate();
 
-    public abstract void createServer(String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor);
+    public abstract void createServer(ServerLoader loader, String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor);
 
     protected abstract String getApiUrl();
 

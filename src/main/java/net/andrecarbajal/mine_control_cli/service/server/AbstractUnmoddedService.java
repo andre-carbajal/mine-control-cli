@@ -1,5 +1,6 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
+import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import org.jline.terminal.Terminal;
@@ -14,12 +15,13 @@ public abstract class AbstractUnmoddedService extends AbstractLoaderService {
     }
 
     @Override
-    public void createServer(String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
+    public void createServer(ServerLoader loader, String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
         Path serverPath = prepareServerDirectory(serverName);
         try {
             String version = selectVersion(terminal, resourceLoader, templateExecutor);
             downloadServerFiles(version, serverPath);
             acceptEula(serverPath);
+            saveServerInfo(serverPath, loader, version);
             logServerCreationSuccess(serverName, version);
         } catch (Exception e) {
             deleteServerDirectory(FileUtil.getMineControlCliFolder().resolve(serverName));
@@ -31,5 +33,9 @@ public abstract class AbstractUnmoddedService extends AbstractLoaderService {
     private void downloadServerFiles(String version, Path serverPath) {
         String downloadUrl = getDownloadUrl(version);
         fileDownloadService.downloadFile(downloadUrl, serverPath, "server.jar");
+    }
+
+    private void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version) {
+        FileUtil.saveServerInfo(serverPath, serverLoader, version);
     }
 }
