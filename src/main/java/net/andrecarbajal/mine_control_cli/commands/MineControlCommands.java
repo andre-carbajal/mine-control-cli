@@ -2,6 +2,7 @@ package net.andrecarbajal.mine_control_cli.commands;
 
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.process.ServerProcessManager;
+import net.andrecarbajal.mine_control_cli.service.server.FabricService;
 import net.andrecarbajal.mine_control_cli.service.server.PaperService;
 import net.andrecarbajal.mine_control_cli.service.server.SnapshotService;
 import net.andrecarbajal.mine_control_cli.service.server.VanillaService;
@@ -51,6 +52,9 @@ public class MineControlCommands extends AbstractShellComponent {
     private SnapshotService snapshotService;
 
     @Autowired
+    private FabricService fabricService;
+
+    @Autowired
     private PaperService paperService;
 
     @Command(command = "create", description = "Create a new server")
@@ -63,21 +67,19 @@ public class MineControlCommands extends AbstractShellComponent {
 
         System.out.printf("Creating new %s server with name: %s\n", loader, name);
 
-        try {
-            switch (loader) {
-                case VANILLA:
-                    vanillaService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
-                    break;
-                case SNAPSHOT:
-                    snapshotService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
-                    break;
-                case PAPER:
-                    paperService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
-                    break;
-            }
-            System.out.printf("Server %s created successfully\n", name);
-        } catch (Exception e) {
-            throw new RuntimeException("Server creation failed", e);
+        switch (loader) {
+            case VANILLA:
+                vanillaService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                break;
+            case SNAPSHOT:
+                snapshotService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                break;
+            case FABRIC:
+                fabricService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                break;
+            case PAPER:
+                paperService.createServer(name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                break;
         }
     }
 
