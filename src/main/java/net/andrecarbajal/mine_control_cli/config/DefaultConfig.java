@@ -41,5 +41,6 @@ public class DefaultConfig {
 
     private static void setDefaultProperties(Properties properties) {
         properties.setProperty("server.ram", "2G");
+        properties.setProperty("java.path", "java");
     }
 }

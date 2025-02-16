@@ -72,6 +72,8 @@ public class ServerProcessManager {
     private ProcessBuilder createProcessBuilder(Path jarFilePath) {
         var ram = minecraftProperties.getProperty("server.ram");
         System.out.println("Executing server with ram: " + ram);
-        return new ProcessBuilder("java", "-Xmx" + ram, "-jar", jarFilePath.toString(), "nogui");
+        var javaPath = minecraftProperties.getProperty("java.path");
+        System.out.println("Using java path: " + javaPath);
+        return new ProcessBuilder(javaPath, "-Xmx" + ram, "-jar", jarFilePath.toString(), "nogui");
     }
 }

@@ -7,11 +7,9 @@ public class RamPropertyValidator extends BasePropertyValidator {
 
     @Override
     public void validate(String value) throws IllegalArgumentException {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(getPropertyName() + " can not be empty");
-        }
+        checkEmpty(value);
 
-        String pattern = "^\\d+(\\.\\d+)?[GM]B?$";
+        String pattern = "^\\d+(\\.\\d+)?(G|MB)$";
         if (!value.matches(pattern)) {
             throw new IllegalArgumentException(
                     getPropertyName() + " must be a number followed by G or MB, e.g., 2G, 2048MB");

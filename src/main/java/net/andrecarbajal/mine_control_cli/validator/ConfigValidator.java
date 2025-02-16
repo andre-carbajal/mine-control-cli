@@ -12,6 +12,7 @@ public class ConfigValidator {
     public ConfigValidator() {
         validators = new HashMap<>();
         registerValidator(new RamPropertyValidator());
+        registerValidator(new JavaPathPropertyValidator());
     }
 
     public void registerValidator(IPropertyValidator validator) {

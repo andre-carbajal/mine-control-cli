@@ -18,4 +18,10 @@ public abstract class BasePropertyValidator implements IPropertyValidator {
     public String getDescription() {
         return description;
     }
+
+    protected void checkEmpty(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("Value cannot be empty");
+        }
+    }
 }
