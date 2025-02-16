@@ -1,7 +1,9 @@
-package net.andrecarbajal.mine_control_cli.validator;
+package net.andrecarbajal.mine_control_cli.validator.property;
+
+import net.andrecarbajal.mine_control_cli.validator.core.BasePropertyValidator;
 
 public class JavaPathPropertyValidator extends BasePropertyValidator {
-    protected JavaPathPropertyValidator() {
+    public JavaPathPropertyValidator() {
         super("java.path", "Path to the Java executable (e.g., C:\\\\Program Files\\\\Java\\\\jdk\\\\bin\\\\java.exe or /usr/bin/java)");
     }
 

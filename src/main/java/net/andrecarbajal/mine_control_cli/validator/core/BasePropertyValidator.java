@@ -1,4 +1,4 @@
-package net.andrecarbajal.mine_control_cli.validator;
+package net.andrecarbajal.mine_control_cli.validator.core;
 
 public abstract class BasePropertyValidator implements IPropertyValidator {
     private final String propertyName;

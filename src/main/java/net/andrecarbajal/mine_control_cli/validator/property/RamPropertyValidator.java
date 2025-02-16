@@ -1,4 +1,6 @@
-package net.andrecarbajal.mine_control_cli.validator;
+package net.andrecarbajal.mine_control_cli.validator.property;
+
+import net.andrecarbajal.mine_control_cli.validator.core.BasePropertyValidator;
 
 public class RamPropertyValidator extends BasePropertyValidator {
     public RamPropertyValidator() {

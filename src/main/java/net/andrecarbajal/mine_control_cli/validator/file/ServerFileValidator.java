@@ -1,5 +1,6 @@
-package net.andrecarbajal.mine_control_cli.validator;
+package net.andrecarbajal.mine_control_cli.validator.file;
 
+import net.andrecarbajal.mine_control_cli.validator.core.IValidator;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;

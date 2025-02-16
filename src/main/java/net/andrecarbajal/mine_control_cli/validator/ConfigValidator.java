@@ -1,5 +1,9 @@
 package net.andrecarbajal.mine_control_cli.validator;
 
+import net.andrecarbajal.mine_control_cli.validator.core.IPropertyValidator;
+import net.andrecarbajal.mine_control_cli.validator.property.JavaPathPropertyValidator;
+import net.andrecarbajal.mine_control_cli.validator.property.RamPropertyValidator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

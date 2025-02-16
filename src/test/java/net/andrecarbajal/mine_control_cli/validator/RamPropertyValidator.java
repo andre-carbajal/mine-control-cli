@@ -1,5 +1,6 @@
 package net.andrecarbajal.mine_control_cli.validator;
 
+import net.andrecarbajal.mine_control_cli.validator.property.RamPropertyValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
