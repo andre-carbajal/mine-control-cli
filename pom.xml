@@ -98,6 +98,9 @@
 					<metadataRepository>
 						<enabled>true</enabled>
 					</metadataRepository>
+					<buildArgs>
+						<buildArg>--enable-all-security-services</buildArg>
+					</buildArgs>
 				</configuration>
 			</plugin>
 			<plugin>
