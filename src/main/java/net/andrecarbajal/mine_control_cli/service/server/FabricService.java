@@ -63,7 +63,7 @@ public class FabricService extends AbstractModdedLoaderService {
                 restTemplate.exchange(getApiUrl() + "loader", HttpMethod.GET, null, responseType);
 
         if (response.getBody() != null) {
-            return response.getBody().stream().filter(FabricLoaderResponse::isStable).map(FabricLoaderResponse::getVersion).toList();
+            return response.getBody().stream().map(FabricLoaderResponse::getVersion).toList();
         } else {
             throw new RuntimeException("Error getting Fabric versions");
         }

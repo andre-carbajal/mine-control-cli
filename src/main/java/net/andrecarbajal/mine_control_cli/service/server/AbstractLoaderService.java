@@ -29,13 +29,18 @@ public abstract class AbstractLoaderService {
     protected abstract List<String> getVersions();
 
     protected String selectVersion(Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
-        List<SelectorItem<String>> items = getVersions().stream().map(version -> SelectorItem.of(version, version)).toList();
+        List<SelectorItem<String>> items = getVersions().stream()
+                .map(version -> SelectorItem.of(version, version))
+                .toList();
 
         SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(terminal, items, "Minecraft Version", null);
         selector.setResourceLoader(resourceLoader);
         selector.setTemplateExecutor(templateExecutor);
         SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
-        return context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
+
+        return context.getResultItem()
+                .flatMap(si -> Optional.ofNullable(si.getItem()))
+                .orElseThrow(() -> new IllegalStateException("No version selected"));
     }
 
     protected Path prepareServerDirectory(String serverName) {

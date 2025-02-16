@@ -45,7 +45,7 @@ public abstract class AbstractModdedLoaderService extends AbstractLoaderService 
         selector.setResourceLoader(resourceLoader);
         selector.setTemplateExecutor(templateExecutor);
         SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
-        return context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).get();
+        return context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).orElseThrow(() -> new IllegalStateException("No version loader selected"));
     }
 
     private void downloadServerFiles(String version, String loaderVersion, Path serverPath) {
