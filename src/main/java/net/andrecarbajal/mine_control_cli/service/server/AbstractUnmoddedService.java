@@ -14,11 +14,11 @@ public abstract class AbstractUnmoddedService extends AbstractLoaderService {
         super(fileDownloadService);
     }
 
-    @Override
-    public void createServer(ServerLoader loader, String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
+    public void createServer(ServerLoader loader, String serverName, String version, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
         Path serverPath = prepareServerDirectory(serverName);
         try {
-            String version = selectVersion(terminal, resourceLoader, templateExecutor);
+            if (version == null || !getVersions().contains(version))
+                version = selectVersion(terminal, resourceLoader, templateExecutor);
             downloadServerFiles(version, serverPath);
             acceptEula(serverPath);
             saveServerInfo(serverPath, loader, version);

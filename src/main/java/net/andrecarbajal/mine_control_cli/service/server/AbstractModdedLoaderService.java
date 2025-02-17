@@ -19,12 +19,13 @@ public abstract class AbstractModdedLoaderService extends AbstractLoaderService 
         super(fileDownloadService);
     }
 
-    @Override
-    public void createServer(ServerLoader loader, String serverName, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
+    public void createServer(ServerLoader loader, String serverName, String version, String loaderVersion, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
         Path serverPath = prepareServerDirectory(serverName);
         try {
-            String version = selectVersion(terminal, resourceLoader, templateExecutor);
-            String loaderVersion = selectLoaderVersion(terminal, resourceLoader, templateExecutor);
+            if (version == null || !getVersions().contains(version))
+                version = selectVersion(terminal, resourceLoader, templateExecutor);
+            if (loaderVersion == null || !getLoaderVersions().contains(loaderVersion))
+                loaderVersion = selectLoaderVersion(terminal, resourceLoader, templateExecutor);
             downloadServerFiles(version, loaderVersion, serverPath);
             acceptEula(serverPath);
             saveServerInfo(serverPath, loader, version, loaderVersion);

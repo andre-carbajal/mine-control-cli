@@ -60,7 +60,9 @@ public class MineControlCommands extends AbstractShellComponent {
     @Command(command = "create", description = "Create a new server")
     public void create(
             @Option(description = "The name of the server") String name,
-            @Option(description = "The server loader type") String serverLoader) {
+            @Option(description = "The server loader type") String serverLoader,
+            @Option(description = "The minecraft version") String version,
+            @Option(description = "The loader version") String loaderVersion) {
 
         name = getValidatedServerName(name);
         ServerLoader loader = getSelectedLoader(serverLoader);
@@ -69,16 +71,16 @@ public class MineControlCommands extends AbstractShellComponent {
 
         switch (loader) {
             case VANILLA:
-                vanillaService.createServer(ServerLoader.VANILLA, name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                vanillaService.createServer(ServerLoader.VANILLA, name, version, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
             case SNAPSHOT:
-                snapshotService.createServer(ServerLoader.SNAPSHOT, name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                snapshotService.createServer(ServerLoader.SNAPSHOT, name, version, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
             case FABRIC:
-                fabricService.createServer(ServerLoader.FABRIC, name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                fabricService.createServer(ServerLoader.FABRIC, name, version, loaderVersion, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
             case PAPER:
-                paperService.createServer(ServerLoader.PAPER, name, getTerminal(), getResourceLoader(), getTemplateExecutor());
+                paperService.createServer(ServerLoader.PAPER, name, version, getTerminal(), getResourceLoader(), getTemplateExecutor());
                 break;
         }
     }
@@ -86,7 +88,7 @@ public class MineControlCommands extends AbstractShellComponent {
     @Command(command = "list", alias = "ls", description = "List all the servers")
     public void list() {
         try {
-            List<String> servers = FileUtil.getFilesInFolder(FileUtil.getServerInstancesFolder());
+            List<String[]> servers = FileUtil.getFilesInFolderWithDetails(FileUtil.getServerInstancesFolder());
 
             if (servers.isEmpty()) {
                 System.out.println("No servers found");
@@ -94,7 +96,9 @@ public class MineControlCommands extends AbstractShellComponent {
             }
 
             System.out.println("Available servers:");
-            servers.stream().map(server -> String.format("\t%d. %s", servers.indexOf(server) + 1, server)).forEach(System.out::println);
+            servers.stream()
+                    .map(server -> String.format("\t%d. %s", servers.indexOf(server) + 1, server[1]))
+                    .forEach(System.out::println);
         } catch (Exception e) {
             throw new RuntimeException("Failed to list servers", e);
         }
@@ -209,14 +213,16 @@ public class MineControlCommands extends AbstractShellComponent {
     }
 
     private String selectServer(String prompt) {
-        List<String> servers = FileUtil.getFilesInFolder(FileUtil.getServerInstancesFolder());
+        List<String[]> servers = FileUtil.getFilesInFolderWithDetails(FileUtil.getServerInstancesFolder());
 
         if (servers.isEmpty()) {
             System.out.println("No servers available");
             return null;
         }
 
-        List<SelectorItem<String>> items = servers.stream().map(server -> SelectorItem.of(server, server)).toList();
+        List<SelectorItem<String>> items = servers.stream()
+                .map(server -> SelectorItem.of(server[0], server[1]))
+                .toList();
 
         SingleItemSelector<String, SelectorItem<String>> selector = new SingleItemSelector<>(getTerminal(), items, prompt, null);
         selector.setResourceLoader(getResourceLoader());
@@ -224,7 +230,7 @@ public class MineControlCommands extends AbstractShellComponent {
 
         SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = selector.run(SingleItemSelector.SingleItemSelectorContext.empty());
 
-        return context.getResultItem().flatMap(si -> Optional.ofNullable(si.getItem())).orElse(null);
+        return context.getResultItem().flatMap(si -> Optional.ofNullable(si.getName())).orElse(null);
     }
 
     private boolean confirmDeletion(String serverName) {

@@ -122,7 +122,7 @@ public class FileUtil {
         }
     }
 
-    public static List<String> getFilesInFolder(Path folderPath) {
+    public static List<String[]> getFilesInFolderWithDetails(Path folderPath) {
         try (Stream<Path> paths = Files.list(folderPath)) {
             return paths.map(path -> {
                 String folderName = path.getFileName().toString();
@@ -155,14 +155,14 @@ public class FileUtil {
                                 .orElse(null);
 
                         if (loader != null)
-                            return String.format("%s (%s-%s-%s)", folderName, serverLoader, version, loader);
+                            return new String[]{folderName, String.format("%s (%s-%s-%s)", folderName, serverLoader, version, loader)};
                         else
-                            return String.format("%s (%s-%s)", folderName, serverLoader, version);
+                            return new String[]{folderName, String.format("%s (%s-%s)", folderName, serverLoader, version)};
                     } catch (IOException e) {
-                        return folderName + " (Unknown)";
+                        return new String[]{folderName, String.format("%s (Unknown)", folderName)};
                     }
                 } else {
-                    return folderName + " (Unknown)";
+                    return new String[]{folderName, String.format("%s (Unknown)", folderName)};
                 }
             }).toList();
         } catch (IOException e) {
