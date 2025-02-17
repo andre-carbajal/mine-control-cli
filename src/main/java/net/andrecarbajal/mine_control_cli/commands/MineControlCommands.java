@@ -11,14 +11,14 @@ import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.ZipUtils;
 import net.andrecarbajal.mine_control_cli.validator.file.FolderNameValidator;
 import net.andrecarbajal.mine_control_cli.validator.file.ServerFileValidator;
-import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
 import org.springframework.shell.component.ConfirmationInput;
 import org.springframework.shell.component.SingleItemSelector;
 import org.springframework.shell.component.StringInput;
 import org.springframework.shell.component.support.SelectorItem;
 import org.springframework.shell.standard.AbstractShellComponent;
-import org.springframework.stereotype.Component;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
 import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
@@ -28,10 +28,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@Component
-@Command
+@ShellComponent
 @AllArgsConstructor
-@SuppressWarnings("unused")
 public class MineControlCommands extends AbstractShellComponent {
     private FolderNameValidator folderNameValidator;
     private ServerFileValidator serverFileValidator;
@@ -42,7 +40,7 @@ public class MineControlCommands extends AbstractShellComponent {
     private FabricService fabricService;
     private PaperService paperService;
 
-    @Command(command = "create", description = "Create a new server")
+    @ShellMethod(key = "create", value = "Create a new server")
     public void create(
             @Option(description = "The name of the server") String name,
             @Option(description = "The server loader type") String serverLoader,
@@ -70,7 +68,7 @@ public class MineControlCommands extends AbstractShellComponent {
         }
     }
 
-    @Command(command = "list", alias = "ls", description = "List all the servers")
+    @ShellMethod(key = {"list", "ls"}, value = "List all the servers")
     public void list() {
         try {
             List<String[]> servers = FileUtil.getFilesInFolderWithDetails(FileUtil.getServerInstancesFolder());
@@ -89,7 +87,7 @@ public class MineControlCommands extends AbstractShellComponent {
         }
     }
 
-    @Command(command = "delete", description = "Delete a server")
+    @ShellMethod(key = "delete", value = "Delete a server")
     public void delete() {
         try {
             String serverToDelete = selectServer("Select server to delete");
@@ -107,7 +105,7 @@ public class MineControlCommands extends AbstractShellComponent {
         }
     }
 
-    @Command(command = "start", description = "Start a server")
+    @ShellMethod(key = "start", value = "Start a server")
     public void start() {
         try {
             String serverToStart = selectServer("Select server to start");
@@ -128,7 +126,7 @@ public class MineControlCommands extends AbstractShellComponent {
         }
     }
 
-    @Command(command = "loaders", description = "List all the server loaders")
+    @ShellMethod(key = "loaders", value = "List all the server loaders")
     public void loaders() {
         System.out.println("Available server loaders:");
         for (ServerLoader loader : ServerLoader.values()) {
@@ -136,7 +134,7 @@ public class MineControlCommands extends AbstractShellComponent {
         }
     }
 
-    @Command(command = "backup", description = "Backup a server")
+    @ShellMethod(key = "backup", value = "Backup a server")
     public void backup() {
         try {
             String serverToBackup = selectServer("Select sever to backup");

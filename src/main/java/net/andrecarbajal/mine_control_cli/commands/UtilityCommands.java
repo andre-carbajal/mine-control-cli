@@ -3,17 +3,15 @@ package net.andrecarbajal.mine_control_cli.commands;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.shell.command.annotation.Command;
-import org.springframework.stereotype.Component;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
 
-@Command
-@Component
-@SuppressWarnings("unused")
+@ShellComponent
 @AllArgsConstructor
 public class UtilityCommands {
     private final ConfigurableApplicationContext context;
 
-    @Command(command = "exit", alias = {"quit"}, description = "Exit the application")
+    @ShellMethod(key = {"exit", "quit"}, value = "Exit the application")
     public void exit() {
         SpringApplication.exit(context, () -> 0);
         System.exit(0);
