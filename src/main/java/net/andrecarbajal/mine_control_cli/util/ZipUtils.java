@@ -1,6 +1,6 @@
 package net.andrecarbajal.mine_control_cli.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -11,9 +11,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Component
+@AllArgsConstructor
 public class ZipUtils {
-    @Autowired
-    ProgressBar progressBar;
+    private ProgressBar progressBar;
 
     public void zipFolder(String sourceFolderPath, String zipFilePath) throws IOException {
         System.out.println("Starting backup ...");

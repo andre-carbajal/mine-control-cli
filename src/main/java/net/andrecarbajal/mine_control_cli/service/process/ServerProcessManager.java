@@ -1,7 +1,7 @@
 package net.andrecarbajal.mine_control_cli.service.process;
 
+import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.exception.ServerStartException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -13,9 +13,9 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 @Service
+@AllArgsConstructor
 public class ServerProcessManager {
-    @Autowired
-    Properties minecraftProperties;
+    private Properties minecraftProperties;
 
     public void startServer(Path serverPath, Path jarFilePath) throws ServerStartException {
         try {

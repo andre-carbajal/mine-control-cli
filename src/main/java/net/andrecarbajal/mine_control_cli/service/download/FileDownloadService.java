@@ -1,7 +1,7 @@
 package net.andrecarbajal.mine_control_cli.service.download;
 
+import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -15,9 +15,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 
 @Service
+@AllArgsConstructor
 public class FileDownloadService {
-    @Autowired
-    ProgressBar progressBar;
+    private ProgressBar progressBar;
 
     public void downloadFile(String url, Path serverPath, String fileName) {
         System.out.println("Downloading files...");

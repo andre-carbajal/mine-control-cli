@@ -1,5 +1,6 @@
 package net.andrecarbajal.mine_control_cli.commands;
 
+import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.process.ServerProcessManager;
 import net.andrecarbajal.mine_control_cli.service.server.FabricService;
@@ -10,7 +11,6 @@ import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.ZipUtils;
 import net.andrecarbajal.mine_control_cli.validator.file.FolderNameValidator;
 import net.andrecarbajal.mine_control_cli.validator.file.ServerFileValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.command.annotation.Command;
 import org.springframework.shell.command.annotation.Option;
 import org.springframework.shell.component.ConfirmationInput;
@@ -30,31 +30,16 @@ import java.util.stream.Stream;
 
 @Component
 @Command
+@AllArgsConstructor
 @SuppressWarnings("unused")
 public class MineControlCommands extends AbstractShellComponent {
-
-    @Autowired
     private FolderNameValidator folderNameValidator;
-
-    @Autowired
     private ServerFileValidator serverFileValidator;
-
-    @Autowired
     private ZipUtils zipUtils;
-
-    @Autowired
     private ServerProcessManager serverProcessManager;
-
-    @Autowired
     private VanillaService vanillaService;
-
-    @Autowired
     private SnapshotService snapshotService;
-
-    @Autowired
     private FabricService fabricService;
-
-    @Autowired
     private PaperService paperService;
 
     @Command(command = "create", description = "Create a new server")
