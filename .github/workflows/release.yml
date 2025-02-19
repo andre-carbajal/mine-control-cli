@@ -36,14 +36,34 @@ jobs:
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests=true
 
+      - name: Create OS-specific directory
+        shell: bash
+        run: |
+          mkdir -p target/package
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp target/*.exe target/package/
+            cp target/*.dll target/package/ 2>/dev/null || true
+          else
+            cp target/mine-control-cli target/package/
+          fi
+
+      - name: Create ZIP archive
+        shell: bash
+        run: |
+          cd target
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            zip -r mine-control-cli-windows.zip package/*
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            zip -r mine-control-cli-macos.zip package/*
+          else
+            zip -r mine-control-cli-linux.zip package/*
+          fi
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: mine-control-cli-${{ matrix.os }}
-          path: |
-            target/mine-control-cli
-            target/*.exe
-            target/*.dll
+          path: target/*.zip
 
   release:
     needs: build
@@ -68,6 +88,6 @@ jobs:
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*
+          files: artifacts/**/*.zip
           tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
