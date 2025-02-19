@@ -48,6 +48,12 @@ jobs:
           cd target
           Compress-Archive -Path package\* -DestinationPath mine-control-cli-windows.zip
 
+      - name: Build the Inno Setup Installer
+        if: matrix.os == 'windows-latest'
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: setup.iss
+
       - name: Create ZIP archive (Unix)
         if: matrix.os != 'windows-latest'
         shell: bash
@@ -63,7 +69,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mine-control-cli-${{ matrix.os }}
-          path: target/*.zip
+          path: |
+            target/*.zip
+            output/*.exe
 
   release:
     needs: build
@@ -88,6 +96,8 @@ jobs:
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*.zip
+          files: |
+            artifacts/**/*.zip
+            artifacts/**/*.exe
           tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
