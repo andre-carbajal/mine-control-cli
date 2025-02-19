@@ -60,8 +60,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           draft: true
           prerelease: false
 
@@ -69,5 +69,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/**/*
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
