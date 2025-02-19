@@ -36,10 +36,21 @@ jobs:
       - name: Configure Maven Memory (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          echo "MAVEN_OPTS=-Xmx4g" >> $GITHUB_ENV
+          echo "MAVEN_OPTS=-Xmx4G" >> $GITHUB_ENV
 
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests=true
+
+      - name: Create OS-specific directory
+        shell: bash
+        run: |
+          mkdir -p target/package
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp target/*.exe target/package/
+            cp target/*.dll target/package/ 2>/dev/null || true
+          else
+            cp target/mine-control-cli target/package/
+          fi
 
       - name: Create ZIP archive (Windows)
         if: matrix.os == 'windows-latest'
