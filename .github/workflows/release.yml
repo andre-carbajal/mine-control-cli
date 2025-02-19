@@ -36,14 +36,23 @@ jobs:
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests=true
 
+      - name: Package Files into ZIP
+        run: |
+          OS_NAME=${{ matrix.os }}
+          ZIP_NAME=mine-control-cli-${OS_NAME}-${{ github.ref_name }}.zip
+
+          if [[ "$OS_NAME" == "windows-latest" ]]; then
+            powershell Compress-Archive -Path target/* -DestinationPath $ZIP_NAME
+          else
+            zip -r $ZIP_NAME target/*
+          fi
+        shell: bash
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: mine-control-cli-${{ matrix.os }}
-          path: |
-            target/mine-control-cli
-            target/*.exe
-            target/*.dll
+          path: mine-control-cli-${{ matrix.os }}-${{ github.ref_name }}.zip
 
   release:
     needs: build
@@ -55,19 +64,19 @@ jobs:
           path: artifacts
 
       - name: Create Release
-        id: create_release
+        id: release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: true
+          release_name: MineControlCli ${{ github.ref_name }}
+          draft: false
           prerelease: false
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*
+          files: artifacts/**/*.zip
           tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
