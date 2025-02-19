@@ -34,7 +34,7 @@ jobs:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
 
       - name: Build with Maven
-        run: mvn -Pnative  native:compile -DskipTests=true
+        run: mvn -Pnative native:compile -DskipTests=true
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -65,32 +65,9 @@ jobs:
           draft: true
           prerelease: false
 
-      - name: Upload Release Asset for Linux
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mine-control-cli-ubuntu-latest.zip
-          asset_name: mine-control-cli-linux.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset for macOS
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mine-control-cli-macos-latest.zip
-          asset_name: mine-control-cli-macos.zip
-          asset_content_type: application/zip
-
-      - name: Upload Release Asset for Windows
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mine-control-cli-windows-latest.zip
-          asset_name: mine-control-cli-windows.zip
-          asset_content_type: application/zip
+          files: artifacts/**/*
+          tag_name: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
