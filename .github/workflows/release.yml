@@ -33,7 +33,6 @@ jobs:
           distribution: 'graalvm'
           github-token: '${{ secrets.GITHUB_TOKEN }}'
 
-      # Add more memory for macOS build
       - name: Configure Maven Memory (macOS)
         if: matrix.os == 'macos-latest'
         run: |
@@ -41,17 +40,6 @@ jobs:
 
       - name: Build with Maven
         run: mvn -Pnative native:compile -DskipTests=true
-
-      - name: Create OS-specific directory
-        shell: bash
-        run: |
-          mkdir -p target/package
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            cp target/*.exe target/package/
-            cp target/*.dll target/package/ 2>/dev/null || true
-          else
-            cp target/mine-control-cli target/package/
-          fi
 
       - name: Create ZIP archive (Windows)
         if: matrix.os == 'windows-latest'
@@ -66,9 +54,9 @@ jobs:
         run: |
           cd target
           if [ "${{ matrix.os }}" = "macos-latest" ]; then
-            zip -r mine-control-cli-macos.zip package/*
+            zip mine-control-cli-macos.zip mine-control-cli
           else
-            zip -r mine-control-cli-linux.zip package/*
+            zip mine-control-cli-linux.zip mine-control-cli
           fi
 
       - name: Upload Artifact
