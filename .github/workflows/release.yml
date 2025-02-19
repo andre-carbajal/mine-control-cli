@@ -1,7 +1,7 @@
 name: Release
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,9 +72,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/mine-control-cli-ubuntu-latest
-          asset_name: mine-control-cli-linux
-          asset_content_type: application/octet-stream
+          asset_path: ./artifacts/mine-control-cli-ubuntu-latest.zip
+          asset_name: mine-control-cli-linux.zip
+          asset_content_type: application/zip
 
       - name: Upload Release Asset for macOS
         uses: actions/upload-release-asset@v1
@@ -82,9 +82,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/mine-control-cli-macos-latest
-          asset_name: mine-control-cli-macos
-          asset_content_type: application/octet-stream
+          asset_path: ./artifacts/mine-control-cli-macos-latest.zip
+          asset_name: mine-control-cli-macos.zip
+          asset_content_type: application/zip
 
       - name: Upload Release Asset for Windows
         uses: actions/upload-release-asset@v1
@@ -92,6 +92,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/mine-control-cli-windows-latest
+          asset_path: ./artifacts/mine-control-cli-windows-latest.zip
           asset_name: mine-control-cli-windows.zip
           asset_content_type: application/zip
