@@ -6,6 +6,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -38,7 +41,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mine-control-cli-${{ matrix.os }}
-          path: target/mine-control-cli
+          path: |
+            target/mine-control-cli
+            target/*.exe
+            target/*.dll
 
   release:
     needs: build
