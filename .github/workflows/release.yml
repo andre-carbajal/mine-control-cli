@@ -32,7 +32,6 @@ jobs:
           java-version: '21'
           distribution: 'graalvm'
           github-token: '${{ secrets.GITHUB_TOKEN }}'
-          components: 'native-image'
 
       - name: Build with Maven
         run: mvn -Pnative  native:compile -DskipTests=true
@@ -72,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/mine-control-cli-ubuntu-latest.zip
+          asset_path: ./mine-control-cli-ubuntu-latest.zip
           asset_name: mine-control-cli-linux.zip
           asset_content_type: application/zip
 
@@ -82,7 +81,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/mine-control-cli-macos-latest.zip
+          asset_path: ./mine-control-cli-macos-latest.zip
           asset_name: mine-control-cli-macos.zip
           asset_content_type: application/zip
 
@@ -92,6 +91,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/mine-control-cli-windows-latest.zip
+          asset_path: ./mine-control-cli-windows-latest.zip
           asset_name: mine-control-cli-windows.zip
           asset_content_type: application/zip
