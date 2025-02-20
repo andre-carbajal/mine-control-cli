@@ -10,7 +10,29 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-jar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build JAR
+        run: mvn package -DskipTests=true
+
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mine-control-cli-jar
+          path: target/*.jar
+
+  build-native:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -85,7 +107,7 @@ jobs:
             output/*.exe
 
   release:
-    needs: build
+    needs: [ build-jar, build-native ]
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
@@ -110,5 +132,6 @@ jobs:
           files: |
             artifacts/**/*.zip
             artifacts/**/*.exe
+            artifacts/**/*.jar
           tag_name: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
