@@ -15,8 +15,7 @@ public class JavaPathPropertyValidator extends BasePropertyValidator {
 
         String unixPattern = "^/.+";
 
-        boolean isValidFormat = value.matches(windowsPattern) || value.matches(unixPattern);
-
+        boolean isValidFormat = value.matches(windowsPattern) || value.matches(unixPattern) || value.equalsIgnoreCase("java");
         if (!isValidFormat) {
             throw new IllegalArgumentException("Invalid path format");
         }
@@ -28,6 +27,14 @@ public class JavaPathPropertyValidator extends BasePropertyValidator {
             }
         }
 
+        boolean hasValidEnding = isHasValidEnding(value, windowsPattern);
+
+        if (!hasValidEnding) {
+            throw new IllegalArgumentException("Path does not end with 'java', 'java.exe', 'javaw', or 'javaw.exe'");
+        }
+    }
+
+    private static boolean isHasValidEnding(String value, String windowsPattern) {
         if (value.matches(windowsPattern)) {
             int lastColonIndex = value.lastIndexOf(':');
             if (lastColonIndex != 1) {
@@ -38,6 +45,10 @@ public class JavaPathPropertyValidator extends BasePropertyValidator {
         }
 
         String[] components = value.split("[/\\\\]");
+        return isHasValidEnding(value, components);
+    }
+
+    private static boolean isHasValidEnding(String value, String[] components) {
         for (String component : components) {
             if (component.isEmpty()) continue;
             if (component.equals(".") || component.equals("..")) continue;
@@ -47,13 +58,9 @@ public class JavaPathPropertyValidator extends BasePropertyValidator {
         }
 
         String lowercasePath = value.toLowerCase();
-        boolean hasValidEnding = lowercasePath.endsWith("java") ||
+        return lowercasePath.endsWith("java") ||
                 lowercasePath.endsWith("java.exe") ||
                 lowercasePath.endsWith("javaw") ||
                 lowercasePath.endsWith("javaw.exe");
-
-        if (!hasValidEnding) {
-            throw new IllegalArgumentException("Path does not end with 'java', 'java.exe', 'javaw', or 'javaw.exe'");
-        }
     }
 }

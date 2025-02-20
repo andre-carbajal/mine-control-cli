@@ -19,7 +19,7 @@ public class ConfigValidator {
         registerValidator(new JavaPathPropertyValidator());
     }
 
-    public void registerValidator(IPropertyValidator validator) {
+    private void registerValidator(IPropertyValidator validator) {
         validators.put(validator.getPropertyName(), validator);
     }
 

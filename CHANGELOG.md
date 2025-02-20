@@ -1,0 +1,1 @@
+- Fix JavaPathPropertyValidator to allow java as a valid path

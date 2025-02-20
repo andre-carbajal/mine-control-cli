@@ -129,6 +129,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           release_name: MineControlCli ${{ github.ref_name }}
           draft: false
+          body_path: CHANGELOG.md
           prerelease: false
 
       - name: Upload Release Assets
