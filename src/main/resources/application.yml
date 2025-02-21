@@ -13,6 +13,9 @@ spring:
         enabled: false
       history:
         enabled: false
+      version:
+        show-build-name: true
+        show-build-group: true
 
 logging:
   level:
