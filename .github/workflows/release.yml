@@ -127,7 +127,6 @@ jobs:
           tag: ${{ github.ref_name }}
           name: MineControlCli ${{ github.ref_name }}
           draft: false
-          bodyFile: "./RELEASE_NOTES.md"
           prerelease: false
 
       - name: Upload Release Assets
@@ -138,4 +137,5 @@ jobs:
             artifacts/**/*.exe
             artifacts/**/*.jar
           tag_name: ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
           token: ${{ secrets.GITHUB_TOKEN }}
