@@ -127,7 +127,7 @@ jobs:
           tag: ${{ github.ref_name }}
           name: MineControlCli ${{ github.ref_name }}
           draft: false
-          bodyFile: "RELEASE_NOTES.md"
+          bodyFile: "./RELEASE_NOTES.md"
           prerelease: false
 
       - name: Upload Release Assets
