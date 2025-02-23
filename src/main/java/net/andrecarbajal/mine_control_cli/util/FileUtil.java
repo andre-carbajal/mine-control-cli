@@ -1,7 +1,6 @@
 package net.andrecarbajal.mine_control_cli.util;
 
 import lombok.AllArgsConstructor;
-import net.andrecarbajal.mine_control_cli.Application;
 import net.andrecarbajal.mine_control_cli.config.AppProperties;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import org.springframework.stereotype.Component;
