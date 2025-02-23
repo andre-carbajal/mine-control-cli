@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.andrecarbajal</groupId>
     <artifactId>mine-control-cli</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <name>mine-control-cli</name>
     <description>A powerful CLI tool to create, manage, and run Minecraft servers effortlessly.</description>
     <url/>
@@ -81,6 +81,15 @@
     </dependencyManagement>
 
     <build>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>application.yml</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

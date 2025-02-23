@@ -4,6 +4,7 @@ import net.andrecarbajal.mine_control_cli.model.fabric.FabricInstallerResponse;
 import net.andrecarbajal.mine_control_cli.model.fabric.FabricLoaderResponse;
 import net.andrecarbajal.mine_control_cli.model.fabric.FabricVersionResponse;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
+import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,8 @@ import java.util.List;
 
 @Service
 public class FabricService extends AbstractModdedLoaderService {
-    public FabricService(FileDownloadService fileDownloadService) {
-        super(fileDownloadService);
+    public FabricService(FileUtil fileUtil, FileDownloadService fileDownloadService) {
+        super(fileUtil, fileDownloadService);
     }
 
     @Override

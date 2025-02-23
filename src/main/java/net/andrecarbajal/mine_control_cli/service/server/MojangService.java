@@ -3,14 +3,15 @@ package net.andrecarbajal.mine_control_cli.service.server;
 import net.andrecarbajal.mine_control_cli.model.mojang.MojangServerResponse;
 import net.andrecarbajal.mine_control_cli.model.mojang.MojangVersionsResponse;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
+import net.andrecarbajal.mine_control_cli.util.FileUtil;
 
 import java.util.List;
 
 public abstract class MojangService extends AbstractUnmoddedService {
     public abstract String type();
 
-    public MojangService(FileDownloadService fileDownloadService) {
-        super(fileDownloadService);
+    public MojangService(FileUtil fileUtil, FileDownloadService fileDownloadService) {
+        super(fileUtil, fileDownloadService);
     }
 
     @Override

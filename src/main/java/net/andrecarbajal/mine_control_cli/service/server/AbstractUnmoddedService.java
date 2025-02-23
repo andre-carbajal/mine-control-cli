@@ -10,8 +10,8 @@ import org.springframework.shell.style.TemplateExecutor;
 import java.nio.file.Path;
 
 public abstract class AbstractUnmoddedService extends AbstractLoaderService {
-    public AbstractUnmoddedService(FileDownloadService fileDownloadService) {
-        super(fileDownloadService);
+    public AbstractUnmoddedService(FileUtil fileUtil, FileDownloadService fileDownloadService) {
+        super(fileUtil, fileDownloadService);
     }
 
     public void createServer(ServerLoader loader, String serverName, String version, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
@@ -24,7 +24,7 @@ public abstract class AbstractUnmoddedService extends AbstractLoaderService {
             saveServerInfo(serverPath, loader, version);
             logServerCreationSuccess(serverName, version);
         } catch (Exception e) {
-            deleteServerDirectory(FileUtil.getMineControlCliFolder().resolve(serverName));
+            deleteServerDirectory(fileUtil.getMineControlCliFolder().resolve(serverName));
         }
     }
 
@@ -36,6 +36,6 @@ public abstract class AbstractUnmoddedService extends AbstractLoaderService {
     }
 
     private void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version) {
-        FileUtil.saveServerInfo(serverPath, serverLoader, version);
+        fileUtil.saveServerInfo(serverPath, serverLoader, version);
     }
 }

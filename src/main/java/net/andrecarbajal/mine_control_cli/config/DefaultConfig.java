@@ -1,7 +1,9 @@
 package net.andrecarbajal.mine_control_cli.config;
 
+import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.validator.ConfigValidator;
+import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,11 +11,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Properties;
 
+@Component
+@AllArgsConstructor
 public class DefaultConfig {
-    private static final ConfigValidator validator = new ConfigValidator();
+    private final FileUtil fileUtil;
 
-    public static Properties loadConfig() throws IOException {
-        Path configPath = FileUtil.getConfiguration();
+    private final ConfigValidator validator = new ConfigValidator();
+
+    public Properties loadConfig() throws IOException {
+        Path configPath = fileUtil.getConfiguration();
         Properties properties = new Properties();
 
         if (configPath.toFile().exists()) {
@@ -39,7 +45,7 @@ public class DefaultConfig {
         return properties;
     }
 
-    private static void setDefaultProperties(Properties properties) {
+    private void setDefaultProperties(Properties properties) {
         properties.setProperty("server.ram", "2G");
         properties.setProperty("java.path", "java");
     }

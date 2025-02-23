@@ -1,7 +1,7 @@
 package net.andrecarbajal.mine_control_cli.config;
 
 import jakarta.annotation.PostConstruct;
-import net.andrecarbajal.mine_control_cli.Application;
+import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.model.github.GithubTagResponse;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
@@ -21,24 +21,29 @@ import java.util.List;
 import java.util.Properties;
 
 @Configuration
+@AllArgsConstructor
 @PropertySource(value = "file:${config.path}", ignoreResourceNotFound = true)
 public class MineControlConfig {
+    private final FileUtil fileUtil;
+    private final AppProperties appProperties;
+    private final DefaultConfig defaultConfig;
+
     @PostConstruct
     public void setConfigPath() {
-        var configPath = FileUtil.getConfiguration();
+        var configPath = fileUtil.getConfiguration();
         System.setProperty("config.path", configPath.toString());
     }
 
     @Bean
     public Properties minecraftProperties() throws IOException {
-        return DefaultConfig.loadConfig();
+        return defaultConfig.loadConfig();
     }
 
     @Bean
     public String init() {
-        Path mineControlCliFolder = FileUtil.getMineControlCliFolder();
-        Path serverInstancesFolder = FileUtil.getServerInstancesFolder();
-        Path serverBackupsFolder = FileUtil.getServerBackupsFolder();
+        Path mineControlCliFolder = fileUtil.getMineControlCliFolder();
+        Path serverInstancesFolder = fileUtil.getServerInstancesFolder();
+        Path serverBackupsFolder = fileUtil.getServerBackupsFolder();
 
         if (Files.notExists(mineControlCliFolder)) {
             try {
@@ -93,7 +98,7 @@ public class MineControlConfig {
     private boolean isNewerVersion(String latestVersion) {
         latestVersion = latestVersion.startsWith("v") ? latestVersion.substring(1) : latestVersion;
         String[] latestParts = latestVersion.split("\\.");
-        String[] currentParts = Application.VERSION.split("\\.");
+        String[] currentParts = appProperties.getVersion().split("\\.");
 
         for (int i = 0; i < latestParts.length; i++) {
             int latestPart = Integer.parseInt(latestParts[i]);

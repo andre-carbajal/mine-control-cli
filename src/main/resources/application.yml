@@ -1,6 +1,7 @@
 spring:
   application:
     name: mine-control-cli
+    version: @project.version@
   main:
     banner-mode: off
   shell:

@@ -11,7 +11,6 @@ import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.ZipUtils;
 import net.andrecarbajal.mine_control_cli.validator.file.FolderNameValidator;
 import net.andrecarbajal.mine_control_cli.validator.file.ServerFileValidator;
-import org.springframework.shell.command.annotation.Option;
 import org.springframework.shell.component.ConfirmationInput;
 import org.springframework.shell.component.SingleItemSelector;
 import org.springframework.shell.component.StringInput;
@@ -19,6 +18,7 @@ import org.springframework.shell.component.support.SelectorItem;
 import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 public class MineControlCommands extends AbstractShellComponent {
     private FolderNameValidator folderNameValidator;
     private ServerFileValidator serverFileValidator;
+    private FileUtil fileUtil;
     private ZipUtils zipUtils;
     private ServerProcessManager serverProcessManager;
     private VanillaService vanillaService;
@@ -42,10 +43,10 @@ public class MineControlCommands extends AbstractShellComponent {
 
     @ShellMethod(key = "create", value = "Create a new server")
     public void create(
-            @Option(description = "The name of the server") String name,
-            @Option(description = "The server loader type") String serverLoader,
-            @Option(description = "The minecraft version") String version,
-            @Option(description = "The loader version") String loaderVersion) {
+            @ShellOption(help = "The name of the server", defaultValue = ShellOption.NULL) String name,
+            @ShellOption(help = "The server loader type", defaultValue = ShellOption.NULL) String serverLoader,
+            @ShellOption(help = "The minecraft version", defaultValue = ShellOption.NULL) String version,
+            @ShellOption(help = "The loader version", defaultValue = ShellOption.NULL) String loaderVersion) {
 
         name = getValidatedServerName(name);
         ServerLoader loader = getSelectedLoader(serverLoader);
@@ -71,7 +72,7 @@ public class MineControlCommands extends AbstractShellComponent {
     @ShellMethod(key = {"list", "ls"}, value = "List all the servers")
     public void list() {
         try {
-            List<String[]> servers = FileUtil.getFilesInFolderWithDetails(FileUtil.getServerInstancesFolder());
+            List<String[]> servers = fileUtil.getFilesInFolderWithDetails(fileUtil.getServerInstancesFolder());
 
             if (servers.isEmpty()) {
                 System.out.println("No servers found");
@@ -94,8 +95,8 @@ public class MineControlCommands extends AbstractShellComponent {
             if (serverToDelete == null) return;
 
             if (confirmDeletion(serverToDelete)) {
-                Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverToDelete);
-                FileUtil.deleteFolder(serverPath);
+                Path serverPath = fileUtil.getServerInstancesFolder().resolve(serverToDelete);
+                fileUtil.deleteFolder(serverPath);
                 System.out.printf("Server %s deleted successfully\n", serverToDelete);
             } else {
                 System.out.printf("Server %s deletion cancelled\n", serverToDelete);
@@ -111,7 +112,7 @@ public class MineControlCommands extends AbstractShellComponent {
             String serverToStart = selectServer("Select server to start");
             if (serverToStart == null) return;
 
-            Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverToStart);
+            Path serverPath = fileUtil.getServerInstancesFolder().resolve(serverToStart);
             Path jarFilePath = serverPath.resolve("server.jar");
 
             if (!serverFileValidator.isValid(jarFilePath.toString())) {
@@ -140,9 +141,9 @@ public class MineControlCommands extends AbstractShellComponent {
             String serverToBackup = selectServer("Select sever to backup");
             if (serverToBackup == null) return;
 
-            Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverToBackup);
+            Path serverPath = fileUtil.getServerInstancesFolder().resolve(serverToBackup);
             String fileName = serverToBackup + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"));
-            Path zipFilePath = FileUtil.getServerBackupsFolder().resolve(fileName + ".zip");
+            Path zipFilePath = fileUtil.getServerBackupsFolder().resolve(fileName + ".zip");
 
             zipUtils.zipFolder(serverPath.toString(), zipFilePath.toString());
 
@@ -196,7 +197,7 @@ public class MineControlCommands extends AbstractShellComponent {
     }
 
     private String selectServer(String prompt) {
-        List<String[]> servers = FileUtil.getFilesInFolderWithDetails(FileUtil.getServerInstancesFolder());
+        List<String[]> servers = fileUtil.getFilesInFolderWithDetails(fileUtil.getServerInstancesFolder());
 
         if (servers.isEmpty()) {
             System.out.println("No servers available");

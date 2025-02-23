@@ -1,7 +1,10 @@
 package net.andrecarbajal.mine_control_cli.util;
 
+import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.Application;
+import net.andrecarbajal.mine_control_cli.config.AppProperties;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -13,33 +16,37 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Component
+@AllArgsConstructor
 public class FileUtil {
-    public static Path getMineControlCliFolder() {
+    private final AppProperties appProperties;
+
+    public Path getMineControlCliFolder() {
         String folder = switch (OsChecker.getOperatingSystemType()) {
             case Windows -> System.getenv("APPDATA");
             case MacOS -> System.getProperty("user.home") + "/Library/Application Support";
             default -> System.getProperty("user.home");
         };
 
-        return Paths.get(folder, Application.APP_FOLDER_NAME);
+        return Paths.get(folder, appProperties.getName());
     }
 
-    public static Path getConfiguration() {
+    public Path getConfiguration() {
         return getMineControlCliFolder().resolve("config.properties");
     }
 
-    public static Path getServerInstancesFolder() {
+    public Path getServerInstancesFolder() {
         return getMineControlCliFolder().resolve("instances");
     }
 
-    public static Path getServerBackupsFolder() {
+    public Path getServerBackupsFolder() {
         Path backupsFolder = getMineControlCliFolder().resolve("backups");
         if (!Files.exists(backupsFolder))
             createFolder(backupsFolder);
         return backupsFolder;
     }
 
-    public static void createFolder(Path path) {
+    public void createFolder(Path path) {
         if (Files.exists(path)) {
             throw new RuntimeException("Folder already exists");
         }
@@ -50,7 +57,7 @@ public class FileUtil {
         }
     }
 
-    public static void deleteFolder(Path folderPath) {
+    public void deleteFolder(Path folderPath) {
         try {
             if (!Files.exists(folderPath)) {
                 throw new RuntimeException("Folder does not exist: " + folderPath);
@@ -89,7 +96,7 @@ public class FileUtil {
         }
     }
 
-    public static void saveEulaFile(Path serverPath) {
+    public void saveEulaFile(Path serverPath) {
         Path eulaPath = serverPath.resolve("eula.txt");
         String content = "eula=true";
 
@@ -100,7 +107,7 @@ public class FileUtil {
         }
     }
 
-    public static void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version) {
+    public void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version) {
         Path infoPath = serverPath.resolve("mineControlServer.info");
         String content = String.format("serverLoader: %s\nversion: %s", serverLoader, version);
 
@@ -111,7 +118,7 @@ public class FileUtil {
         }
     }
 
-    public static void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version, String loader) {
+    public void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version, String loader) {
         Path infoPath = serverPath.resolve("mineControlServer.info");
         String content = String.format("serverLoader: %s\nversion: %s\nloader: %s", serverLoader, version, loader);
 
@@ -122,7 +129,7 @@ public class FileUtil {
         }
     }
 
-    public static List<String[]> getFilesInFolderWithDetails(Path folderPath) {
+    public List<String[]> getFilesInFolderWithDetails(Path folderPath) {
         try (Stream<Path> paths = Files.list(folderPath)) {
             return paths.map(path -> {
                 String folderName = path.getFileName().toString();

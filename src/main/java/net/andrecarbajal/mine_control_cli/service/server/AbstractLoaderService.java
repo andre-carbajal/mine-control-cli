@@ -17,6 +17,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public abstract class AbstractLoaderService {
 
+    protected final FileUtil fileUtil;
+
     protected final FileDownloadService fileDownloadService;
 
     protected final RestTemplate restTemplate = new RestTemplate();
@@ -41,13 +43,13 @@ public abstract class AbstractLoaderService {
     }
 
     protected Path prepareServerDirectory(String serverName) {
-        Path serverPath = FileUtil.getServerInstancesFolder().resolve(serverName);
-        FileUtil.createFolder(serverPath);
+        Path serverPath = fileUtil.getServerInstancesFolder().resolve(serverName);
+        fileUtil.createFolder(serverPath);
         return serverPath;
     }
 
     protected void acceptEula(Path serverPath) {
-        FileUtil.saveEulaFile(serverPath);
+        fileUtil.saveEulaFile(serverPath);
     }
 
     protected void logServerCreationSuccess(String serverName, String version) {
@@ -55,6 +57,6 @@ public abstract class AbstractLoaderService {
     }
 
     protected void deleteServerDirectory(Path serverPath) {
-        FileUtil.deleteFolder(serverPath);
+        fileUtil.deleteFolder(serverPath);
     }
 }

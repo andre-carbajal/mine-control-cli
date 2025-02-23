@@ -15,8 +15,8 @@ import java.util.Optional;
 
 public abstract class AbstractModdedLoaderService extends AbstractLoaderService {
 
-    public AbstractModdedLoaderService(FileDownloadService fileDownloadService) {
-        super(fileDownloadService);
+    public AbstractModdedLoaderService(FileUtil fileUtil, FileDownloadService fileDownloadService) {
+        super(fileUtil, fileDownloadService);
     }
 
     public void createServer(ServerLoader loader, String serverName, String version, String loaderVersion, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
@@ -31,7 +31,7 @@ public abstract class AbstractModdedLoaderService extends AbstractLoaderService 
             saveServerInfo(serverPath, loader, version, loaderVersion);
             logServerCreationSuccess(serverName, version);
         } catch (Exception e) {
-            deleteServerDirectory(FileUtil.getMineControlCliFolder().resolve(serverName));
+            deleteServerDirectory(fileUtil.getMineControlCliFolder().resolve(serverName));
         }
     }
 
@@ -55,6 +55,6 @@ public abstract class AbstractModdedLoaderService extends AbstractLoaderService 
     }
 
     private void saveServerInfo(Path serverPath, ServerLoader serverLoader, String version, String loader) {
-        FileUtil.saveServerInfo(serverPath, serverLoader, version, loader);
+        fileUtil.saveServerInfo(serverPath, serverLoader, version, loader);
     }
 }
