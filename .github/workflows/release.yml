@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -19,9 +19,9 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
+          distribution: "temurin"
+          java-version: "21"
+          cache: "maven"
 
       - name: Build JAR
         run: mvn package -DskipTests=true
@@ -52,17 +52,17 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
+          distribution: "temurin"
+          java-version: "21"
+          cache: "maven"
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-          native-image-job-reports: 'true'
+          java-version: "21"
+          distribution: "graalvm"
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          native-image-job-reports: "true"
 
       - name: Configure Maven Memory (macOS)
         if: startsWith(matrix.os, 'macos')
@@ -112,7 +112,7 @@ jobs:
             output/*.exe
 
   release:
-    needs: [ build-jar, build-native ]
+    needs: [build-jar, build-native]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -123,24 +123,6 @@ jobs:
         with:
           path: artifacts
 
-      - name: Get Changelog
-        id: changelog
-        run: |
-          CHANGELOG=$(cat CHANGELOG.md)
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          echo "$CHANGELOG" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Create Release
-        id: release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ github.ref_name }}
-          name: MineControlCli ${{ github.ref_name }}
-          body: ${{ env.CHANGELOG }}
-          draft: false
-          prerelease: false
-
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
@@ -149,4 +131,5 @@ jobs:
             artifacts/**/*.exe
             artifacts/**/*.jar
           tag_name: ${{ github.ref_name }}
+          name: MineControlCli ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
