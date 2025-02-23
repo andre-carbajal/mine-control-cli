@@ -115,10 +115,21 @@ jobs:
     needs: [ build-jar, build-native ]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+
+      - name: Get Changelog
+        id: changelog
+        run: |
+          CHANGELOG=$(cat CHANGELOG.md)
+          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+          echo "$CHANGELOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create Release
         id: release
@@ -126,6 +137,7 @@ jobs:
         with:
           tag: ${{ github.ref_name }}
           name: MineControlCli ${{ github.ref_name }}
+          body: ${{ env.CHANGELOG }}
           draft: false
           prerelease: false
 
@@ -137,5 +149,4 @@ jobs:
             artifacts/**/*.exe
             artifacts/**/*.jar
           tag_name: ${{ github.ref_name }}
-          body_path: RELEASE_NOTES.md
           token: ${{ secrets.GITHUB_TOKEN }}
