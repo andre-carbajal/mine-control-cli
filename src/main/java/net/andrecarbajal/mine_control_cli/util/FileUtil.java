@@ -1,7 +1,6 @@
 package net.andrecarbajal.mine_control_cli.util;
 
 import lombok.AllArgsConstructor;
-import net.andrecarbajal.mine_control_cli.config.AppProperties;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
@@ -18,33 +16,6 @@ import java.util.stream.Stream;
 @Component
 @AllArgsConstructor
 public class FileUtil {
-    private final AppProperties appProperties;
-
-    public Path getMineControlCliFolder() {
-        String folder = switch (OsChecker.getOperatingSystemType()) {
-            case Windows -> System.getenv("APPDATA");
-            case MacOS -> System.getProperty("user.home") + "/Library/Application Support";
-            default -> System.getProperty("user.home");
-        };
-
-        return Paths.get(folder, appProperties.getName());
-    }
-
-    public Path getConfiguration() {
-        return getMineControlCliFolder().resolve("config.properties");
-    }
-
-    public Path getServerInstancesFolder() {
-        return getMineControlCliFolder().resolve("instances");
-    }
-
-    public Path getServerBackupsFolder() {
-        Path backupsFolder = getMineControlCliFolder().resolve("backups");
-        if (!Files.exists(backupsFolder))
-            createFolder(backupsFolder);
-        return backupsFolder;
-    }
-
     public void createFolder(Path path) {
         if (Files.exists(path)) {
             throw new RuntimeException("Folder already exists");

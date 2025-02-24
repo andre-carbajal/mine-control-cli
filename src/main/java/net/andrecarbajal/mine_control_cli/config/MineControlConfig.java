@@ -1,75 +1,85 @@
 package net.andrecarbajal.mine_control_cli.config;
 
 import jakarta.annotation.PostConstruct;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.andrecarbajal.mine_control_cli.model.github.GithubTagResponse;
-import net.andrecarbajal.mine_control_cli.util.FileUtil;
+import net.andrecarbajal.mine_control_cli.util.OsChecker;
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
 import org.jline.terminal.Terminal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
+@Order(2)
 @Configuration
-@AllArgsConstructor
+@Getter
 @PropertySource(value = "file:${config.path}", ignoreResourceNotFound = true)
 public class MineControlConfig {
-    private final FileUtil fileUtil;
     private final AppProperties appProperties;
-    private final DefaultConfig defaultConfig;
+    private Path applicationFolder;
+    private Path instancesPath;
+    private Path backupsPath;
+    private Properties configProperties;
+
+    public MineControlConfig(AppProperties appProperties) {
+        this.appProperties = appProperties;
+    }
 
     @PostConstruct
-    public void setConfigPath() {
-        var configPath = fileUtil.getConfiguration();
+    public void initialize() {
+        initializeApplicationFolder();
+        initializePaths();
+
+        initializeConfigProperties();
+
+        var configPath = applicationFolder.resolve("config.properties");
         System.setProperty("config.path", configPath.toString());
     }
 
-    @Bean
-    public Properties minecraftProperties() throws IOException {
-        return defaultConfig.loadConfig();
+    private void initializeApplicationFolder() {
+        String baseFolder = switch (OsChecker.getOperatingSystemType()) {
+            case Windows -> System.getenv("APPDATA");
+            case MacOS -> System.getProperty("user.home") + "/Library/Application Support";
+            default -> System.getProperty("user.home");
+        };
+
+        applicationFolder = Paths.get(baseFolder, appProperties.getName());
+        try {
+            Files.createDirectories(applicationFolder);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating application folder", e);
+        }
     }
 
-    @Bean
-    public String init() {
-        Path mineControlCliFolder = fileUtil.getMineControlCliFolder();
-        Path serverInstancesFolder = fileUtil.getServerInstancesFolder();
-        Path serverBackupsFolder = fileUtil.getServerBackupsFolder();
-
-        if (Files.notExists(mineControlCliFolder)) {
-            try {
-                Files.createDirectories(mineControlCliFolder);
-            } catch (Exception e) {
-                throw new RuntimeException("Error creating mine-control-cli folder", e);
-            }
+    private void initializePaths() {
+        instancesPath = applicationFolder.resolve("instances");
+        backupsPath = applicationFolder.resolve("backups");
+        try {
+            Files.createDirectories(instancesPath);
+            Files.createDirectories(backupsPath);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating application directories", e);
         }
+    }
 
-        if (Files.notExists(serverInstancesFolder)) {
-            try {
-                Files.createDirectories(serverInstancesFolder);
-            } catch (Exception e) {
-                throw new RuntimeException("Error creating server instances folder", e);
-            }
+    private void initializeConfigProperties() {
+        DefaultConfig defaultConfig = new DefaultConfig(this);
+        try {
+            configProperties = defaultConfig.loadConfig();
+        } catch (Exception e) {
+            throw new RuntimeException("Error loading configuration", e);
         }
-
-        if (Files.notExists(serverBackupsFolder)) {
-            try {
-                Files.createDirectories(serverBackupsFolder);
-            } catch (Exception e) {
-                throw new RuntimeException("Error creating server backups folder", e);
-            }
-        }
-
-        return "mine-control-cli started";
     }
 
     @Bean

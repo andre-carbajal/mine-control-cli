@@ -1,6 +1,7 @@
 package net.andrecarbajal.mine_control_cli.commands;
 
 import lombok.AllArgsConstructor;
+import net.andrecarbajal.mine_control_cli.config.MineControlConfig;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.process.ServerProcessManager;
 import net.andrecarbajal.mine_control_cli.service.server.FabricService;
@@ -31,6 +32,7 @@ import java.util.stream.Stream;
 @ShellComponent
 @AllArgsConstructor
 public class MineControlCommands extends AbstractShellComponent {
+    private MineControlConfig config;
     private FolderNameValidator folderNameValidator;
     private ServerFileValidator serverFileValidator;
     private FileUtil fileUtil;
@@ -72,7 +74,7 @@ public class MineControlCommands extends AbstractShellComponent {
     @ShellMethod(key = {"list", "ls"}, value = "List all the servers")
     public void list() {
         try {
-            List<String[]> servers = fileUtil.getFilesInFolderWithDetails(fileUtil.getServerInstancesFolder());
+            List<String[]> servers = fileUtil.getFilesInFolderWithDetails(config.getInstancesPath());
 
             if (servers.isEmpty()) {
                 System.out.println("No servers found");
@@ -88,14 +90,14 @@ public class MineControlCommands extends AbstractShellComponent {
         }
     }
 
-    @ShellMethod(key = "delete", value = "Delete a server")
+    @ShellMethod(key = {"delete", "rm", "remove"}, value = "Delete a server")
     public void delete() {
         try {
             String serverToDelete = selectServer("Select server to delete");
             if (serverToDelete == null) return;
 
             if (confirmDeletion(serverToDelete)) {
-                Path serverPath = fileUtil.getServerInstancesFolder().resolve(serverToDelete);
+                Path serverPath = config.getInstancesPath().resolve(serverToDelete);
                 fileUtil.deleteFolder(serverPath);
                 System.out.printf("Server %s deleted successfully\n", serverToDelete);
             } else {
@@ -112,7 +114,7 @@ public class MineControlCommands extends AbstractShellComponent {
             String serverToStart = selectServer("Select server to start");
             if (serverToStart == null) return;
 
-            Path serverPath = fileUtil.getServerInstancesFolder().resolve(serverToStart);
+            Path serverPath = config.getInstancesPath().resolve(serverToStart);
             Path jarFilePath = serverPath.resolve("server.jar");
 
             if (!serverFileValidator.isValid(jarFilePath.toString())) {
@@ -141,9 +143,9 @@ public class MineControlCommands extends AbstractShellComponent {
             String serverToBackup = selectServer("Select sever to backup");
             if (serverToBackup == null) return;
 
-            Path serverPath = fileUtil.getServerInstancesFolder().resolve(serverToBackup);
+            Path serverPath = config.getInstancesPath().resolve(serverToBackup);
             String fileName = serverToBackup + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"));
-            Path zipFilePath = fileUtil.getServerBackupsFolder().resolve(fileName + ".zip");
+            Path zipFilePath = config.getBackupsPath().resolve(fileName + ".zip");
 
             zipUtils.zipFolder(serverPath.toString(), zipFilePath.toString());
 
@@ -197,7 +199,7 @@ public class MineControlCommands extends AbstractShellComponent {
     }
 
     private String selectServer(String prompt) {
-        List<String[]> servers = fileUtil.getFilesInFolderWithDetails(fileUtil.getServerInstancesFolder());
+        List<String[]> servers = fileUtil.getFilesInFolderWithDetails(config.getInstancesPath());
 
         if (servers.isEmpty()) {
             System.out.println("No servers available");

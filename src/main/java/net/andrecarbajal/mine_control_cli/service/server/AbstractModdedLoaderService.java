@@ -1,5 +1,6 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
+import net.andrecarbajal.mine_control_cli.config.MineControlConfig;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
@@ -15,8 +16,8 @@ import java.util.Optional;
 
 public abstract class AbstractModdedLoaderService extends AbstractLoaderService {
 
-    public AbstractModdedLoaderService(FileUtil fileUtil, FileDownloadService fileDownloadService) {
-        super(fileUtil, fileDownloadService);
+    public AbstractModdedLoaderService(MineControlConfig mineControlConfig, FileUtil fileUtil, FileDownloadService fileDownloadService) {
+        super(mineControlConfig, fileUtil, fileDownloadService);
     }
 
     public void createServer(ServerLoader loader, String serverName, String version, String loaderVersion, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
@@ -31,7 +32,7 @@ public abstract class AbstractModdedLoaderService extends AbstractLoaderService 
             saveServerInfo(serverPath, loader, version, loaderVersion);
             logServerCreationSuccess(serverName, version);
         } catch (Exception e) {
-            deleteServerDirectory(fileUtil.getMineControlCliFolder().resolve(serverName));
+            deleteServerDirectory(mineControlConfig.getApplicationFolder().resolve(serverName));
         }
     }
 

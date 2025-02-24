@@ -1,5 +1,6 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
+import net.andrecarbajal.mine_control_cli.config.MineControlConfig;
 import net.andrecarbajal.mine_control_cli.model.fabric.FabricInstallerResponse;
 import net.andrecarbajal.mine_control_cli.model.fabric.FabricLoaderResponse;
 import net.andrecarbajal.mine_control_cli.model.fabric.FabricVersionResponse;
@@ -14,8 +15,8 @@ import java.util.List;
 
 @Service
 public class FabricService extends AbstractModdedLoaderService {
-    public FabricService(FileUtil fileUtil, FileDownloadService fileDownloadService) {
-        super(fileUtil, fileDownloadService);
+    public FabricService(MineControlConfig mineControlConfig, FileUtil fileUtil, FileDownloadService fileDownloadService) {
+        super(mineControlConfig, fileUtil, fileDownloadService);
     }
 
     @Override
