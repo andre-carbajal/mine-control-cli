@@ -1,6 +1,7 @@
-package net.andrecarbajal.mine_control_cli.config;
+package net.andrecarbajal.mine_control_cli.config.properties;
 
 import lombok.AllArgsConstructor;
+import net.andrecarbajal.mine_control_cli.config.path.ApplicationPathResolver;
 import net.andrecarbajal.mine_control_cli.validator.ConfigValidator;
 
 import java.io.FileInputStream;
@@ -13,8 +14,8 @@ import java.util.Properties;
 import java.util.Set;
 
 @AllArgsConstructor
-public class DefaultConfig {
-    private final ApplicationPath applicationPath;
+public class ConfigurationManager {
+    private final ApplicationPathResolver applicationPathResolver;
     private final ConfigValidator validator = new ConfigValidator();
 
     private static final Set<String> REQUIRED_PROPERTIES = new HashSet<>(
@@ -22,7 +23,7 @@ public class DefaultConfig {
     );
 
     public Properties loadConfig() throws IOException {
-        Path configPath = applicationPath.getApplicationPath().resolve("config.properties");
+        Path configPath = applicationPathResolver.getApplicationPath().resolve("config.properties");
         Properties properties = new Properties();
 
         if (configPath.toFile().exists()) {
@@ -77,7 +78,7 @@ public class DefaultConfig {
     private void setDefaultProperties(Properties properties) {
         properties.setProperty("server.ram", "2G");
         properties.setProperty("java.path", "java");
-        properties.setProperty("cli.instances", applicationPath.getApplicationPath().resolve("instances").toString());
-        properties.setProperty("cli.backups", applicationPath.getApplicationPath().resolve("backups").toString());
+        properties.setProperty("cli.instances", applicationPathResolver.getApplicationPath().resolve("instances").toString());
+        properties.setProperty("cli.backups", applicationPathResolver.getApplicationPath().resolve("backups").toString());
     }
 }

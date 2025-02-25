@@ -1,7 +1,7 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
 import lombok.RequiredArgsConstructor;
-import net.andrecarbajal.mine_control_cli.config.MineControlConfig;
+import net.andrecarbajal.mine_control_cli.config.AppConfiguration;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import org.jline.terminal.Terminal;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public abstract class AbstractLoaderService {
 
-    protected final MineControlConfig mineControlConfig;
+    protected final AppConfiguration appConfiguration;
 
     protected final FileUtil fileUtil;
 
@@ -46,7 +46,7 @@ public abstract class AbstractLoaderService {
     }
 
     protected Path prepareServerDirectory(String serverName) {
-        Path serverPath = mineControlConfig.getInstancesPath().resolve(serverName);
+        Path serverPath = appConfiguration.getInstancesPath().resolve(serverName);
         fileUtil.createFolder(serverPath);
         return serverPath;
     }

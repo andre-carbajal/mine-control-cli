@@ -1,6 +1,6 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
-import net.andrecarbajal.mine_control_cli.config.MineControlConfig;
+import net.andrecarbajal.mine_control_cli.config.AppConfiguration;
 import net.andrecarbajal.mine_control_cli.model.paper.PaperBuildResponse;
 import net.andrecarbajal.mine_control_cli.model.paper.PaperResponse;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
@@ -12,8 +12,8 @@ import java.util.List;
 
 @Service
 public class PaperService extends AbstractUnmoddedService {
-    public PaperService(MineControlConfig mineControlConfig, FileUtil fileUtil, FileDownloadService fileDownloadService) {
-        super(mineControlConfig, fileUtil, fileDownloadService);
+    public PaperService(AppConfiguration appConfiguration, FileUtil fileUtil, FileDownloadService fileDownloadService) {
+        super(appConfiguration, fileUtil, fileDownloadService);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
-import net.andrecarbajal.mine_control_cli.config.MineControlConfig;
+import net.andrecarbajal.mine_control_cli.config.AppConfiguration;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
@@ -11,8 +11,8 @@ import org.springframework.shell.style.TemplateExecutor;
 import java.nio.file.Path;
 
 public abstract class AbstractUnmoddedService extends AbstractLoaderService {
-    public AbstractUnmoddedService(MineControlConfig mineControlConfig, FileUtil fileUtil, FileDownloadService fileDownloadService) {
-        super(mineControlConfig, fileUtil, fileDownloadService);
+    public AbstractUnmoddedService(AppConfiguration appConfiguration, FileUtil fileUtil, FileDownloadService fileDownloadService) {
+        super(appConfiguration, fileUtil, fileDownloadService);
     }
 
     public void createServer(ServerLoader loader, String serverName, String version, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
@@ -25,7 +25,7 @@ public abstract class AbstractUnmoddedService extends AbstractLoaderService {
             saveServerInfo(serverPath, loader, version);
             logServerCreationSuccess(serverName, version);
         } catch (Exception e) {
-            deleteServerDirectory(mineControlConfig.getApplicationPath().getApplicationPath().resolve(serverName));
+            deleteServerDirectory(appConfiguration.getApplicationPathResolver().getApplicationPath().resolve(serverName));
         }
     }
 

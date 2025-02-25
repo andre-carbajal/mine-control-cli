@@ -11,7 +11,7 @@ import org.springframework.core.annotation.Order;
 @Order(1)
 @Configuration
 @ConfigurationProperties(prefix = "spring.application")
-public class AppProperties {
+public class ApplicationProperties {
     private String name;
     private String version;
 }

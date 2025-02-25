@@ -1,7 +1,7 @@
 package net.andrecarbajal.mine_control_cli.commands;
 
 import lombok.AllArgsConstructor;
-import net.andrecarbajal.mine_control_cli.config.MineControlConfig;
+import net.andrecarbajal.mine_control_cli.config.AppConfiguration;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
 import net.andrecarbajal.mine_control_cli.service.process.ServerProcessManager;
 import net.andrecarbajal.mine_control_cli.service.server.FabricService;
@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 @ShellComponent
 @AllArgsConstructor
 public class MineControlCommands extends AbstractShellComponent {
-    private MineControlConfig config;
+    private AppConfiguration config;
     private FolderNameValidator folderNameValidator;
     private ServerFileValidator serverFileValidator;
     private FileUtil fileUtil;

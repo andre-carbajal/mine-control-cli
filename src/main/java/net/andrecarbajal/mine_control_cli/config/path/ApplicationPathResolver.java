@@ -1,16 +1,17 @@
-package net.andrecarbajal.mine_control_cli.config;
+package net.andrecarbajal.mine_control_cli.config.path;
 
+import net.andrecarbajal.mine_control_cli.config.ApplicationProperties;
 import net.andrecarbajal.mine_control_cli.util.OsChecker;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class ApplicationPath {
-    private final AppProperties appProperties;
+public class ApplicationPathResolver {
+    private final ApplicationProperties applicationProperties;
 
-    public ApplicationPath(AppProperties appProperties) {
-        this.appProperties = appProperties;
+    public ApplicationPathResolver(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
     }
 
     public Path getApplicationPath() {
@@ -20,7 +21,7 @@ public class ApplicationPath {
             default -> System.getProperty("user.home");
         };
 
-        return Paths.get(baseFolder, appProperties.getName());
+        return Paths.get(baseFolder, applicationProperties.getName());
     }
 
     public void createApplicationPath() {

@@ -2,6 +2,8 @@ package net.andrecarbajal.mine_control_cli.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import net.andrecarbajal.mine_control_cli.config.path.ApplicationPathResolver;
+import net.andrecarbajal.mine_control_cli.config.properties.ConfigurationManager;
 import net.andrecarbajal.mine_control_cli.model.github.GithubTagResponse;
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
 import org.jline.terminal.Terminal;
@@ -9,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -19,36 +20,35 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 
-@Order(2)
-@Configuration
 @Getter
+@Configuration
 @PropertySource(value = "file:${config.path}", ignoreResourceNotFound = true)
-public class MineControlConfig {
-    private final AppProperties appProperties;
-    private final ApplicationPath applicationPath;
+public class AppConfiguration {
+    private final ApplicationProperties applicationProperties;
+    private final ApplicationPathResolver applicationPathResolver;
     private Properties configProperties;
     private Path instancesPath;
     private Path backupsPath;
 
-    public MineControlConfig(AppProperties appProperties) {
-        this.appProperties = appProperties;
-        this.applicationPath = new ApplicationPath(appProperties);
+    public AppConfiguration(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
+        this.applicationPathResolver = new ApplicationPathResolver(applicationProperties);
     }
 
     @PostConstruct
     public void initialize() {
-        applicationPath.createApplicationPath();
+        applicationPathResolver.createApplicationPath();
         initializeConfigProperties();
         initializePaths();
 
-        var configPath = applicationPath.getApplicationPath().resolve("config.properties");
+        var configPath = applicationPathResolver.getApplicationPath().resolve("config.properties");
         System.setProperty("config.path", configPath.toString());
     }
 
     private void initializeConfigProperties() {
-        DefaultConfig defaultConfig = new DefaultConfig(applicationPath);
+        ConfigurationManager configurationManager = new ConfigurationManager(applicationPathResolver);
         try {
-            configProperties = defaultConfig.loadConfig();
+            configProperties = configurationManager.loadConfig();
         } catch (Exception e) {
             throw new RuntimeException("Error loading configuration", e);
         }
@@ -57,10 +57,10 @@ public class MineControlConfig {
     private void initializePaths() {
         instancesPath = configProperties.getProperty("cli.instances") != null ?
                 Path.of(configProperties.getProperty("cli.instances")) :
-                applicationPath.getApplicationPath().resolve("instances");
+                applicationPathResolver.getApplicationPath().resolve("instances");
         backupsPath = configProperties.getProperty("cli.backups") != null ?
                 Path.of(configProperties.getProperty("cli.backups")) :
-                applicationPath.getApplicationPath().resolve("backups");
+                applicationPathResolver.getApplicationPath().resolve("backups");
         try {
             Files.createDirectories(instancesPath);
             Files.createDirectories(backupsPath);
@@ -95,7 +95,7 @@ public class MineControlConfig {
     private boolean isNewerVersion(String latestVersion) {
         latestVersion = latestVersion.startsWith("v") ? latestVersion.substring(1) : latestVersion;
         String[] latestParts = latestVersion.split("\\.");
-        String[] currentParts = appProperties.getVersion().split("\\.");
+        String[] currentParts = applicationProperties.getVersion().split("\\.");
 
         for (int i = 0; i < latestParts.length; i++) {
             int latestPart = Integer.parseInt(latestParts[i]);
