@@ -14,7 +14,7 @@ import java.util.Set;
 
 @AllArgsConstructor
 public class DefaultConfig {
-    private final MineControlConfig mineControlConfig;
+    private final ApplicationPath applicationPath;
     private final ConfigValidator validator = new ConfigValidator();
 
     private static final Set<String> REQUIRED_PROPERTIES = new HashSet<>(
@@ -22,7 +22,7 @@ public class DefaultConfig {
     );
 
     public Properties loadConfig() throws IOException {
-        Path configPath = mineControlConfig.getApplicationFolder().resolve("config.properties");
+        Path configPath = applicationPath.getApplicationPath().resolve("config.properties");
         Properties properties = new Properties();
 
         if (configPath.toFile().exists()) {
@@ -77,7 +77,7 @@ public class DefaultConfig {
     private void setDefaultProperties(Properties properties) {
         properties.setProperty("server.ram", "2G");
         properties.setProperty("java.path", "java");
-        properties.setProperty("cli.instances", mineControlConfig.getInstancesPath().toString());
-        properties.setProperty("cli.backups", mineControlConfig.getBackupsPath().toString());
+        properties.setProperty("cli.instances", applicationPath.getApplicationPath().resolve("instances").toString());
+        properties.setProperty("cli.backups", applicationPath.getApplicationPath().resolve("backups").toString());
     }
 }

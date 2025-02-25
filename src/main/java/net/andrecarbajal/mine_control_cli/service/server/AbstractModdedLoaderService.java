@@ -32,7 +32,7 @@ public abstract class AbstractModdedLoaderService extends AbstractLoaderService 
             saveServerInfo(serverPath, loader, version, loaderVersion);
             logServerCreationSuccess(serverName, version);
         } catch (Exception e) {
-            deleteServerDirectory(mineControlConfig.getApplicationFolder().resolve(serverName));
+            deleteServerDirectory(mineControlConfig.getApplicationPath().getApplicationPath().resolve(serverName));
         }
     }
 

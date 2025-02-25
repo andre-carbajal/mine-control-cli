@@ -25,7 +25,7 @@ public abstract class AbstractUnmoddedService extends AbstractLoaderService {
             saveServerInfo(serverPath, loader, version);
             logServerCreationSuccess(serverName, version);
         } catch (Exception e) {
-            deleteServerDirectory(mineControlConfig.getApplicationFolder().resolve(serverName));
+            deleteServerDirectory(mineControlConfig.getApplicationPath().getApplicationPath().resolve(serverName));
         }
     }
 

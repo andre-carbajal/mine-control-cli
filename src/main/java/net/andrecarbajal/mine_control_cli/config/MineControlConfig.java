@@ -3,7 +3,6 @@ package net.andrecarbajal.mine_control_cli.config;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import net.andrecarbajal.mine_control_cli.model.github.GithubTagResponse;
-import net.andrecarbajal.mine_control_cli.util.OsChecker;
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
 import org.jline.terminal.Terminal;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -27,58 +25,47 @@ import java.util.Properties;
 @PropertySource(value = "file:${config.path}", ignoreResourceNotFound = true)
 public class MineControlConfig {
     private final AppProperties appProperties;
-    private Path applicationFolder;
+    private final ApplicationPath applicationPath;
+    private Properties configProperties;
     private Path instancesPath;
     private Path backupsPath;
-    private Properties configProperties;
 
     public MineControlConfig(AppProperties appProperties) {
         this.appProperties = appProperties;
+        this.applicationPath = new ApplicationPath(appProperties);
     }
 
     @PostConstruct
     public void initialize() {
-        initializeApplicationFolder();
+        applicationPath.createApplicationPath();
+        initializeConfigProperties();
         initializePaths();
 
-        initializeConfigProperties();
-
-        var configPath = applicationFolder.resolve("config.properties");
+        var configPath = applicationPath.getApplicationPath().resolve("config.properties");
         System.setProperty("config.path", configPath.toString());
     }
 
-    private void initializeApplicationFolder() {
-        String baseFolder = switch (OsChecker.getOperatingSystemType()) {
-            case Windows -> System.getenv("APPDATA");
-            case MacOS -> System.getProperty("user.home") + "/Library/Application Support";
-            default -> System.getProperty("user.home");
-        };
-
-        applicationFolder = Paths.get(baseFolder, appProperties.getName());
+    private void initializeConfigProperties() {
+        DefaultConfig defaultConfig = new DefaultConfig(applicationPath);
         try {
-            Files.createDirectories(applicationFolder);
+            configProperties = defaultConfig.loadConfig();
         } catch (Exception e) {
-            throw new RuntimeException("Error creating application folder", e);
+            throw new RuntimeException("Error loading configuration", e);
         }
     }
 
     private void initializePaths() {
-        instancesPath = applicationFolder.resolve("instances");
-        backupsPath = applicationFolder.resolve("backups");
+        instancesPath = configProperties.getProperty("cli.instances") != null ?
+                Path.of(configProperties.getProperty("cli.instances")) :
+                applicationPath.getApplicationPath().resolve("instances");
+        backupsPath = configProperties.getProperty("cli.backups") != null ?
+                Path.of(configProperties.getProperty("cli.backups")) :
+                applicationPath.getApplicationPath().resolve("backups");
         try {
             Files.createDirectories(instancesPath);
             Files.createDirectories(backupsPath);
         } catch (Exception e) {
             throw new RuntimeException("Error creating application directories", e);
-        }
-    }
-
-    private void initializeConfigProperties() {
-        DefaultConfig defaultConfig = new DefaultConfig(this);
-        try {
-            configProperties = defaultConfig.loadConfig();
-        } catch (Exception e) {
-            throw new RuntimeException("Error loading configuration", e);
         }
     }
 
