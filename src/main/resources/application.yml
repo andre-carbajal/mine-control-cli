@@ -1,6 +1,6 @@
 spring:
   application:
-    name: mine-control-cli
+    name: @project.artifactId@
     version: @project.version@
   main:
     banner-mode: off
