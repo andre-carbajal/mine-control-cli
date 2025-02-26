@@ -12,6 +12,7 @@ import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.ZipUtils;
 import net.andrecarbajal.mine_control_cli.validator.FolderNameValidator;
 import net.andrecarbajal.mine_control_cli.validator.ServerFileValidator;
+import net.andrecarbajal.mine_control_cli.validator.core.ValidationResult;
 import org.springframework.shell.component.ConfirmationInput;
 import org.springframework.shell.component.SingleItemSelector;
 import org.springframework.shell.component.StringInput;
@@ -156,25 +157,19 @@ public class MineControlCommands extends AbstractShellComponent {
     }
 
     private String getValidatedServerName(String name) {
-        if (name != null && folderNameValidator.isValid(name)) {
-            return name;
-        }
+        ValidationResult validationResult = folderNameValidator.validate(name);
+        while (!validationResult.isValid()) {
+            validationResult.getErrors().forEach(System.out::println);
+            System.out.println("Please enter a valid server name:");
 
-        StringInput input = new StringInput(getTerminal());
-        input.setResourceLoader(getResourceLoader());
-        input.setTemplateExecutor(getTemplateExecutor());
-
-        do {
-            if (name != null) {
-                System.out.println("Invalid server name. Please enter a valid name:");
-            } else {
-                System.out.println("Please enter the server name:");
-            }
+            StringInput input = new StringInput(getTerminal());
+            input.setResourceLoader(getResourceLoader());
+            input.setTemplateExecutor(getTemplateExecutor());
 
             StringInput.StringInputContext context = input.run(StringInput.StringInputContext.empty());
             name = context.getResultValue();
-        } while (!folderNameValidator.isValid(name));
-
+            validationResult = folderNameValidator.validate(name);
+        }
         return name;
     }
 

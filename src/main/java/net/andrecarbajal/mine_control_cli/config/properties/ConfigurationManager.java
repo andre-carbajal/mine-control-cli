@@ -2,7 +2,8 @@ package net.andrecarbajal.mine_control_cli.config.properties;
 
 import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.config.path.ApplicationPathResolver;
-import net.andrecarbajal.mine_control_cli.validator.ConfigValidator;
+import net.andrecarbajal.mine_control_cli.validator.config.ConfigValidator;
+import net.andrecarbajal.mine_control_cli.validator.core.ValidationResult;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -65,7 +66,8 @@ public class ConfigurationManager {
                 configProperties.setBackupsPath(pathResolver.createSubdirectory("backups"));
             }
 
-            List<String> validationErrors = validator.validate(configProperties);
+            ValidationResult validationResult= validator.validate(configProperties);
+            List<String> validationErrors = validationResult.getErrors();
             if (!validationErrors.isEmpty()) {
                 System.out.println("Configuration validation failed: " + validationErrors);
                 resetToDefaults(configPath, configProperties);
