@@ -5,20 +5,15 @@ import lombok.Getter;
 import net.andrecarbajal.mine_control_cli.config.path.ApplicationPathResolver;
 import net.andrecarbajal.mine_control_cli.config.properties.ConfigProperties;
 import net.andrecarbajal.mine_control_cli.config.properties.ConfigurationManager;
-import net.andrecarbajal.mine_control_cli.model.github.GithubTagResponse;
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
+import net.andrecarbajal.mine_control_cli.util.UpdateChecker;
 import org.jline.terminal.Terminal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 @Getter
 @Configuration
@@ -26,6 +21,7 @@ import java.util.List;
 public class AppConfiguration {
     private final ApplicationProperties applicationProperties;
     private final ApplicationPathResolver applicationPathResolver;
+    private final UpdateChecker updateChecker;
     private ConfigProperties configProperties;
     private Path instancesPath;
     private Path backupsPath;
@@ -33,6 +29,7 @@ public class AppConfiguration {
     public AppConfiguration(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
         this.applicationPathResolver = new ApplicationPathResolver(applicationProperties);
+        this.updateChecker = new UpdateChecker(applicationProperties);
     }
 
     @PostConstruct
@@ -51,11 +48,6 @@ public class AppConfiguration {
         }
     }
 
-    @Bean
-    public ConfigProperties configProperties() {
-        return configProperties;
-    }
-
     private void initializePaths() {
         instancesPath = configProperties.getInstancesPath();
         backupsPath = configProperties.getBackupsPath();
@@ -69,44 +61,17 @@ public class AppConfiguration {
     }
 
     @Bean
-    public String checkUpdates() {
-        RestTemplate restTemplate = new RestTemplate();
-
-        ParameterizedTypeReference<List<GithubTagResponse>> responseType =
-                new ParameterizedTypeReference<>() {
-                };
-
-        ResponseEntity<List<GithubTagResponse>> response =
-                restTemplate.exchange("https://api.github.com/repos/MineControlCli/mine-control-cli/tags", HttpMethod.GET, null, responseType);
-
-        if (response.getBody() != null) {
-            var latestVersion = response.getBody().stream().map(GithubTagResponse::getName).toList().stream().findFirst().orElse(null);
-            if (latestVersion != null && isNewerVersion(latestVersion)) {
-                System.out.println("New version available: " + latestVersion);
-                System.out.println("Download at: https://github.com/MineControlCli/mine-control-cli/releases");
-            }
-            return (latestVersion == null) ? " null" : latestVersion;
-        } else {
-            throw new RuntimeException("Error getting Fabric versions");
-        }
+    public String updateChecker(){
+        updateChecker.checkForUpdates().ifPresent(update -> {
+            System.out.println("A new version is available: " + update.version());
+            System.out.println("Download it at: " + update.downloadUrl());
+        });
+        return "Update Checker";
     }
 
-    private boolean isNewerVersion(String latestVersion) {
-        latestVersion = latestVersion.startsWith("v") ? latestVersion.substring(1) : latestVersion;
-        String[] latestParts = latestVersion.split("\\.");
-        String[] currentParts = applicationProperties.getVersion().split("\\.");
-
-        for (int i = 0; i < latestParts.length; i++) {
-            int latestPart = Integer.parseInt(latestParts[i]);
-            int currentPart = Integer.parseInt(currentParts[i]);
-
-            if (latestPart > currentPart) {
-                return true;
-            } else if (latestPart < currentPart) {
-                return false;
-            }
-        }
-        return false;
+    @Bean
+    public ConfigProperties configProperties() {
+        return configProperties;
     }
 
     @Bean
