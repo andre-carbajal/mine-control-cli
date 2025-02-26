@@ -1,4 +1,1 @@
-- Fix JavaPathPropertyValidator to allow java as a valid path
-- Check updates on startup and notify user if there is a new version available
-- Version command shows the version of the application
-- The parameters of the create command are now not mandatory
+- Instance and Backup configuration added
