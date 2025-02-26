@@ -1,45 +1,61 @@
 package net.andrecarbajal.mine_control_cli.validator;
 
-import net.andrecarbajal.mine_control_cli.validator.core.IPropertyValidator;
-import net.andrecarbajal.mine_control_cli.validator.property.JavaPathPropertyValidator;
-import net.andrecarbajal.mine_control_cli.validator.property.RamPropertyValidator;
+import net.andrecarbajal.mine_control_cli.config.properties.ConfigProperties;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 public class ConfigValidator {
-    private final Map<String, IPropertyValidator> validators;
-
-    public ConfigValidator() {
-        validators = new HashMap<>();
-        registerValidator(new RamPropertyValidator());
-        registerValidator(new JavaPathPropertyValidator());
-    }
-
-    private void registerValidator(IPropertyValidator validator) {
-        validators.put(validator.getPropertyName(), validator);
-    }
-
-    public void validateConfig(Properties properties) throws IllegalArgumentException {
+    public List<String> validate(ConfigProperties properties) {
         List<String> errors = new ArrayList<>();
 
-        for (IPropertyValidator validator : validators.values()) {
-            String propertyName = validator.getPropertyName();
-            String value = properties.getProperty(propertyName);
+        if (!isValidRamFormat(properties.getServerRam())) {
+            errors.add("Invalid server.ram format. Expected format: NUMBER[G|M], e.g. 2G or 1024M");
+        }
 
-            try {
-                validator.validate(value);
-            } catch (IllegalArgumentException e) {
-                errors.add(e.getMessage());
+        if (!isValidJavaPath(properties.getJavaPath())) {
+            errors.add("Invalid java.path: Java executable not found or not executable");
+        }
+
+        if (!isValidDirectory(properties.getInstancesPath())) {
+            errors.add("Invalid cli.instances directory path");
+        }
+
+        if (!isValidDirectory(properties.getBackupsPath())) {
+            errors.add("Invalid cli.backups directory path");
+        }
+
+        return errors;
+    }
+
+    private boolean isValidRamFormat(String ram) {
+        return ram != null && ram.matches("\\d+[GM]");
+    }
+
+    private boolean isValidJavaPath(String javaPath) {
+        if (javaPath == null) return false;
+
+        if (javaPath.equals("java")) {
+            String pathEnv = System.getenv("PATH");
+            if (pathEnv == null) return false;
+
+            for (String path : pathEnv.split(System.getProperty("path.separator"))) {
+                Path javaBin = Paths.get(path, "java" + (System.getProperty("os.name").toLowerCase().contains("win") ? ".exe" : ""));
+                if (Files.isExecutable(javaBin)) {
+                    return true;
+                }
             }
+            return false;
         }
 
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException("Validation errors found:\n" +
-                    String.join("\n", errors));
-        }
+        Path javaExecutable = Paths.get(javaPath);
+        return Files.isExecutable(javaExecutable);
+    }
+
+    private boolean isValidDirectory(Path path) {
+        return path != null && (Files.isDirectory(path) || path.toFile().mkdirs());
     }
 }

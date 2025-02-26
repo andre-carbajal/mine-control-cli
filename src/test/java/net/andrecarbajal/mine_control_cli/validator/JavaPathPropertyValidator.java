@@ -1,6 +1,5 @@
 package net.andrecarbajal.mine_control_cli.validator;
 
-import net.andrecarbajal.mine_control_cli.validator.property.JavaPathPropertyValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

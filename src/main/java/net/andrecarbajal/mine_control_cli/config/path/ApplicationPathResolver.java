@@ -32,4 +32,14 @@ public class ApplicationPathResolver {
             throw new RuntimeException("Error creating application folder", e);
         }
     }
+
+    public Path createSubdirectory(String subdirectory) {
+        Path subPath = getApplicationPath().resolve(subdirectory);
+        try {
+            Files.createDirectories(subPath);
+            return subPath;
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating " + subdirectory + " directory", e);
+        }
+    }
 }

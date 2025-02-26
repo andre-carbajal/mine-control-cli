@@ -3,6 +3,7 @@ package net.andrecarbajal.mine_control_cli.config;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import net.andrecarbajal.mine_control_cli.config.path.ApplicationPathResolver;
+import net.andrecarbajal.mine_control_cli.config.properties.ConfigProperties;
 import net.andrecarbajal.mine_control_cli.config.properties.ConfigurationManager;
 import net.andrecarbajal.mine_control_cli.model.github.GithubTagResponse;
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
@@ -18,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Properties;
 
 @Getter
 @Configuration
@@ -26,7 +26,7 @@ import java.util.Properties;
 public class AppConfiguration {
     private final ApplicationProperties applicationProperties;
     private final ApplicationPathResolver applicationPathResolver;
-    private Properties configProperties;
+    private ConfigProperties configProperties;
     private Path instancesPath;
     private Path backupsPath;
 
@@ -40,27 +40,26 @@ public class AppConfiguration {
         applicationPathResolver.createApplicationPath();
         initializeConfigProperties();
         initializePaths();
-
-        var configPath = applicationPathResolver.getApplicationPath().resolve("config.properties");
-        System.setProperty("config.path", configPath.toString());
     }
 
     private void initializeConfigProperties() {
         ConfigurationManager configurationManager = new ConfigurationManager(applicationPathResolver);
         try {
-            configProperties = configurationManager.loadConfig();
+            configProperties = configurationManager.configProperties();
         } catch (Exception e) {
             throw new RuntimeException("Error loading configuration", e);
         }
     }
 
+    @Bean
+    public ConfigProperties configProperties() {
+        return configProperties;
+    }
+
     private void initializePaths() {
-        instancesPath = configProperties.getProperty("cli.instances") != null ?
-                Path.of(configProperties.getProperty("cli.instances")) :
-                applicationPathResolver.getApplicationPath().resolve("instances");
-        backupsPath = configProperties.getProperty("cli.backups") != null ?
-                Path.of(configProperties.getProperty("cli.backups")) :
-                applicationPathResolver.getApplicationPath().resolve("backups");
+        instancesPath = configProperties.getInstancesPath();
+        backupsPath = configProperties.getBackupsPath();
+
         try {
             Files.createDirectories(instancesPath);
             Files.createDirectories(backupsPath);

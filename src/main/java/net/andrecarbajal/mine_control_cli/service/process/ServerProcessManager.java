@@ -1,7 +1,7 @@
 package net.andrecarbajal.mine_control_cli.service.process;
 
 import lombok.AllArgsConstructor;
-import net.andrecarbajal.mine_control_cli.config.AppConfiguration;
+import net.andrecarbajal.mine_control_cli.config.properties.ConfigProperties;
 import net.andrecarbajal.mine_control_cli.exception.ServerStartException;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import java.nio.file.Path;
 @Service
 @AllArgsConstructor
 public class ServerProcessManager {
-    private AppConfiguration appConfiguration;
+    private ConfigProperties configProperties;
 
     public void startServer(Path serverPath, Path jarFilePath) throws ServerStartException {
         try {
@@ -70,9 +70,9 @@ public class ServerProcessManager {
     }
 
     private ProcessBuilder createProcessBuilder(Path jarFilePath) {
-        var ram = appConfiguration.getConfigProperties().getProperty("server.ram");
+        var ram = configProperties.getServerRam();
         System.out.println("Executing server with ram: " + ram);
-        var javaPath = appConfiguration.getConfigProperties().getProperty("java.path");
+        var javaPath = configProperties.getJavaPath();
         System.out.println("Using java path: " + javaPath);
         return new ProcessBuilder(javaPath, "-Xmx" + ram, "-jar", jarFilePath.toString(), "nogui");
     }

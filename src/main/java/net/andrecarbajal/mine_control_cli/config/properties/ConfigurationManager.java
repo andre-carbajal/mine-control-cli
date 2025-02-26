@@ -8,77 +8,94 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 @AllArgsConstructor
 public class ConfigurationManager {
-    private final ApplicationPathResolver applicationPathResolver;
+    private final ApplicationPathResolver pathResolver;
     private final ConfigValidator validator = new ConfigValidator();
 
-    private static final Set<String> REQUIRED_PROPERTIES = new HashSet<>(
-            Arrays.asList("server.ram", "java.path", "cli.instances", "cli.backups")
-    );
+    public ConfigProperties configProperties() {
+        Path configFilePath = pathResolver.getApplicationPath().resolve("config.properties");
+        ConfigProperties configProperties = new ConfigProperties();
 
-    public Properties loadConfig() throws IOException {
-        Path configPath = applicationPathResolver.getApplicationPath().resolve("config.properties");
+        try {
+            if (configFilePath.toFile().exists()) {
+                loadConfiguration(configFilePath, configProperties);
+            } else {
+                configProperties.setInstancesPath(pathResolver.createSubdirectory("instances"));
+                configProperties.setBackupsPath(pathResolver.createSubdirectory("backups"));
+
+                saveConfiguration(configFilePath, configProperties);
+                System.out.println("Config file created at: " + configFilePath);
+            }
+
+            System.setProperty("config.path", configFilePath.toString());
+
+            return configProperties;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize configuration", e);
+        }
+    }
+
+    private void loadConfiguration(Path configPath, ConfigProperties configProperties) throws IOException {
         Properties properties = new Properties();
 
-        if (configPath.toFile().exists()) {
-            try (FileInputStream fis = new FileInputStream(configPath.toFile())) {
-                properties.load(fis);
+        try (FileInputStream fis = new FileInputStream(configPath.toFile())) {
+            properties.load(fis);
 
-                boolean missingProperties = checkMissingProperties(properties);
-
-                try {
-                    validator.validateConfig(properties);
-                } catch (IllegalArgumentException e) {
-                    System.out.println(e.getMessage());
-                    missingProperties = true;
-                }
-
-                if (missingProperties) {
-                    System.out.println("Missing or invalid properties. Resetting to defaults.");
-                    properties.clear();
-                    setDefaultProperties(properties);
-                    try (FileOutputStream fos = new FileOutputStream(configPath.toFile())) {
-                        properties.store(fos, "Reset to default after validation failure or missing properties");
-                    }
-                }
+            if (properties.containsKey("server.ram")) {
+                configProperties.setServerRam(properties.getProperty("server.ram"));
             }
-        } else {
-            setDefaultProperties(properties);
-            try (FileOutputStream fos = new FileOutputStream(configPath.toFile())) {
-                properties.store(fos, "Default config");
+
+            if (properties.containsKey("java.path")) {
+                configProperties.setJavaPath(properties.getProperty("java.path"));
             }
-            System.out.println("Config file created at: " + configPath);
+
+            if (properties.containsKey("cli.instances")) {
+                configProperties.setInstancesPath(Path.of(properties.getProperty("cli.instances")));
+            } else {
+                configProperties.setInstancesPath(pathResolver.createSubdirectory("instances"));
+            }
+
+            if (properties.containsKey("cli.backups")) {
+                configProperties.setBackupsPath(Path.of(properties.getProperty("cli.backups")));
+            } else {
+                configProperties.setBackupsPath(pathResolver.createSubdirectory("backups"));
+            }
+
+            List<String> validationErrors = validator.validate(configProperties);
+            if (!validationErrors.isEmpty()) {
+                System.out.println("Configuration validation failed: " + validationErrors);
+                resetToDefaults(configPath, configProperties);
+            }
         }
-        return properties;
+
+        pathResolver.createSubdirectory(configProperties.getInstancesPath().getFileName().toString());
+        pathResolver.createSubdirectory(configProperties.getBackupsPath().getFileName().toString());
     }
 
-    private boolean checkMissingProperties(Properties properties) {
-        Set<String> missingProps = new HashSet<>();
+    private void resetToDefaults(Path configPath, ConfigProperties configProperties) throws IOException {
+        System.out.println("Resetting configuration to defaults due to validation failures");
 
-        for (String requiredProp : REQUIRED_PROPERTIES) {
-            if (!properties.containsKey(requiredProp)) {
-                missingProps.add(requiredProp);
-            }
-        }
+        configProperties.setServerRam("2G");
+        configProperties.setJavaPath("java");
+        configProperties.setInstancesPath(pathResolver.createSubdirectory("instances"));
+        configProperties.setBackupsPath(pathResolver.createSubdirectory("backups"));
 
-        if (!missingProps.isEmpty()) {
-            System.out.println("Missing required properties: " + String.join(", ", missingProps));
-            return true;
-        }
-
-        return false;
+        saveConfiguration(configPath, configProperties);
     }
 
-    private void setDefaultProperties(Properties properties) {
-        properties.setProperty("server.ram", "2G");
-        properties.setProperty("java.path", "java");
-        properties.setProperty("cli.instances", applicationPathResolver.getApplicationPath().resolve("instances").toString());
-        properties.setProperty("cli.backups", applicationPathResolver.getApplicationPath().resolve("backups").toString());
+    private void saveConfiguration(Path configPath, ConfigProperties configProperties) throws IOException {
+        Properties properties = new Properties();
+        properties.setProperty("server.ram", configProperties.getServerRam());
+        properties.setProperty("java.path", configProperties.getJavaPath());
+        properties.setProperty("cli.instances", configProperties.getInstancesPath().toString());
+        properties.setProperty("cli.backups", configProperties.getBackupsPath().toString());
+
+        try (FileOutputStream fos = new FileOutputStream(configPath.toFile())) {
+            properties.store(fos, "MineControl CLI Configuration");
+        }
     }
 }
