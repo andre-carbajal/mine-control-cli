@@ -1,12 +1,17 @@
 package net.andrecarbajal.mine_control_cli.service.server;
 
 import net.andrecarbajal.mine_control_cli.config.AppConfiguration;
-import net.andrecarbajal.mine_control_cli.model.paper.PaperBuildResponse;
-import net.andrecarbajal.mine_control_cli.model.paper.PaperResponse;
 import net.andrecarbajal.mine_control_cli.service.download.FileDownloadService;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,23 +28,68 @@ public class PaperService extends AbstractUnmoddedService {
 
     @Override
     protected List<String> getVersions() {
-        PaperResponse response = restTemplate.getForObject(getApiUrl(), PaperResponse.class);
+        List<String> versions = new ArrayList<>();
 
-        if (response != null && response.getVersions() != null) {
-            var versions = response.getVersions();
+        try {
+            URL url = new URL(getApiUrl());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            connection.disconnect();
+
+            JSONObject jsonObject = new JSONObject(content.toString());
+            if (jsonObject.has("versions")) {
+                for (Object version : jsonObject.getJSONArray("versions")) {
+                    versions.add(version.toString());
+                }
+            }
+
             Collections.reverse(versions);
-            return versions;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting Paper versions", e);
         }
-        throw new RuntimeException("Error getting Paper versions");
+
+        return versions;
     }
 
     private String getLatestBuild(String version) {
-        PaperBuildResponse response = restTemplate.getForObject(getApiUrl() + "/versions/" + version, PaperBuildResponse.class);
+        try {
+            URL url = new URL(getApiUrl() + "/versions/" + version);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
 
-        if (response != null && response.getBuilds() != null) {
-            return String.valueOf(response.getBuilds()[response.getBuilds().length - 1]);
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            connection.disconnect();
+
+            JSONObject jsonObject = new JSONObject(content.toString());
+            if (jsonObject.has("builds")) {
+                JSONArray buildsArray = jsonObject.getJSONArray("builds");
+
+                if (!buildsArray.isEmpty()) {
+                    int biggestBuild = buildsArray.getInt(buildsArray.length() - 1);
+                    return String.valueOf(biggestBuild); // Convert to string
+                }
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting Paper builds", e);
         }
-        throw new RuntimeException("Error getting Paper builds");
+
+        return "N/A";
     }
 
     @Override

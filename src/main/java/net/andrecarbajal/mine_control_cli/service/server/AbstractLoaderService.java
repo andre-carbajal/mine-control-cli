@@ -9,7 +9,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.shell.component.SingleItemSelector;
 import org.springframework.shell.component.support.SelectorItem;
 import org.springframework.shell.style.TemplateExecutor;
-import org.springframework.web.client.RestTemplate;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -23,8 +22,6 @@ public abstract class AbstractLoaderService {
     protected final FileUtil fileUtil;
 
     protected final FileDownloadService fileDownloadService;
-
-    protected final RestTemplate restTemplate = new RestTemplate();
 
     protected abstract String getApiUrl();
 
