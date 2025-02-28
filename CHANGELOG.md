@@ -1,2 +1,2 @@
-- Instance and Backup configuration added
-- Code refactoring
+- Call to apis refactored
+- Update version fixed

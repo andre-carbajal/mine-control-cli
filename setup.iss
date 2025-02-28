@@ -1,5 +1,5 @@
 #define MyAppName "MineControl CLI"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Andre Carbajal"
 #define MyAppExeName "mine-control-cli.exe"
 
