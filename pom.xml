@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.andrecarbajal</groupId>
     <artifactId>mine-control-cli</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>mine-control-cli</name>
     <description>A powerful CLI tool to create, manage, and run Minecraft servers effortlessly.</description>
     <url/>
@@ -42,15 +42,16 @@
             <groupId>org.springframework.shell</groupId>
             <artifactId>spring-shell-starter-jna</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20250107</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -112,6 +113,7 @@
                     </metadataRepository>
                     <buildArgs>
                         <buildArg>--enable-all-security-services</buildArg>
+                        <buildArg>--enable-url-protocols=https</buildArg>
                     </buildArgs>
                 </configuration>
             </plugin>
