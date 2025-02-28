@@ -1,4 +1,4 @@
-package net.andrecarbajal.mine_control_cli.util;
+package net.andrecarbajal.mine_control_cli.util.system;
 
 import java.util.Locale;
 

@@ -1,4 +1,4 @@
-package net.andrecarbajal.mine_control_cli.util;
+package net.andrecarbajal.mine_control_cli.util.io;
 
 import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;

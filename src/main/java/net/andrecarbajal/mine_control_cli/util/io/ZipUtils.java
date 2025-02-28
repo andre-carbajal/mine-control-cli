@@ -1,6 +1,7 @@
-package net.andrecarbajal.mine_control_cli.util;
+package net.andrecarbajal.mine_control_cli.util.io;
 
 import lombok.AllArgsConstructor;
+import net.andrecarbajal.mine_control_cli.util.ui.ProgressBar;
 import org.springframework.stereotype.Component;
 
 import java.io.File;

@@ -1,7 +1,7 @@
 package net.andrecarbajal.mine_control_cli.service.download;
 
 import lombok.AllArgsConstructor;
-import net.andrecarbajal.mine_control_cli.util.ProgressBar;
+import net.andrecarbajal.mine_control_cli.util.ui.ProgressBar;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;

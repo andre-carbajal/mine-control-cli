@@ -1,7 +1,7 @@
 package net.andrecarbajal.mine_control_cli.config.path;
 
 import net.andrecarbajal.mine_control_cli.config.ApplicationProperties;
-import net.andrecarbajal.mine_control_cli.util.OsChecker;
+import net.andrecarbajal.mine_control_cli.util.system.OsChecker;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

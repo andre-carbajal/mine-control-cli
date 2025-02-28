@@ -5,7 +5,7 @@ import lombok.Getter;
 import net.andrecarbajal.mine_control_cli.config.path.ApplicationPathResolver;
 import net.andrecarbajal.mine_control_cli.config.properties.ConfigProperties;
 import net.andrecarbajal.mine_control_cli.config.properties.ConfigurationManager;
-import net.andrecarbajal.mine_control_cli.util.ProgressBar;
+import net.andrecarbajal.mine_control_cli.util.ui.ProgressBar;
 import org.jline.terminal.Terminal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
