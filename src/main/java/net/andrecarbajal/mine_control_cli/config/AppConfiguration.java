@@ -5,6 +5,7 @@ import lombok.Getter;
 import net.andrecarbajal.mine_control_cli.config.path.ApplicationPathResolver;
 import net.andrecarbajal.mine_control_cli.config.properties.ConfigProperties;
 import net.andrecarbajal.mine_control_cli.config.properties.ConfigurationManager;
+import net.andrecarbajal.mine_control_cli.util.api.UpdateChecker;
 import net.andrecarbajal.mine_control_cli.util.ui.ProgressBar;
 import org.jline.terminal.Terminal;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import java.nio.file.Path;
 public class AppConfiguration {
     private final ApplicationProperties applicationProperties;
     private final ApplicationPathResolver applicationPathResolver;
+    private final UpdateChecker updateChecker;
     private ConfigProperties configProperties;
     private Path instancesPath;
     private Path backupsPath;
@@ -27,6 +29,7 @@ public class AppConfiguration {
     public AppConfiguration(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
         this.applicationPathResolver = new ApplicationPathResolver(applicationProperties);
+        this.updateChecker = new UpdateChecker(applicationProperties);
     }
 
     @PostConstruct
@@ -55,6 +58,15 @@ public class AppConfiguration {
         } catch (Exception e) {
             throw new RuntimeException("Error creating application directories", e);
         }
+    }
+
+    @Bean
+    public String updateChecker() {
+        updateChecker.checkForUpdates().ifPresent(update -> {
+            System.out.println("A new version is available: " + update.version());
+            System.out.println("Download it at: " + update.downloadUrl());
+        });
+        return "Update Checker";
     }
 
     @Bean
