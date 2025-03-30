@@ -11,6 +11,7 @@ import org.jline.terminal.Terminal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,9 +27,9 @@ public class AppConfiguration {
     private Path instancesPath;
     private Path backupsPath;
 
-    public AppConfiguration(ApplicationProperties applicationProperties) {
+    public AppConfiguration(ApplicationProperties applicationProperties, Environment environment) {
         this.applicationProperties = applicationProperties;
-        this.applicationPathResolver = new ApplicationPathResolver(applicationProperties);
+        this.applicationPathResolver = new ApplicationPathResolver(applicationProperties, environment);
         this.updateChecker = new UpdateChecker(applicationProperties);
     }
 

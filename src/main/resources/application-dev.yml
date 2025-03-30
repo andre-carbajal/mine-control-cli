@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: @project.artifactId@
+    version: @project.version@
+  main:
+    banner-mode: off
+  shell:
+    history:
+      enabled: false
+    interactive:
+      enabled: true
+    command:
+      quit:
+        enabled: false
+      history:
+        enabled: false
+      version:
+        show-build-name: true
+        show-build-group: true
+
+logging:
+  level:
+    root: off

@@ -1,5 +1,5 @@
 #define MyAppName "MineControl CLI"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.2"
 #define MyAppPublisher "Andre Carbajal"
 #define MyAppExeName "mine-control-cli.exe"
 
@@ -20,14 +20,37 @@ WizardStyle=modern
 Source: "target\mine-control-cli.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "target\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 
-[Registry]
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-    ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"
+[Code]
+procedure ModifyPath();
+var
+  Path: string;
+  AppDir: string;
+begin
+  if not RegQueryStringValue(HKLM, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', Path) then
+  begin
+    Exit;
+  end;
 
-[Run]
-Filename: "{sys}\cmd.exe"; \
-    Parameters: "/C setx PATH ""%PATH%;{app}"""; \
-    Flags: runhidden
+  AppDir := ExpandConstant('{app}');
+
+  if Pos(LowerCase(AppDir), LowerCase(Path)) = 0 then
+  begin
+    if Pos(';', Path[Length(Path)]) <> 0 then
+      Path := Path + AppDir
+    else
+      Path := Path + ';' + AppDir;
+
+    RegWriteExpandStringValue(HKLM, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', Path);
+  end;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+  begin
+    ModifyPath();
+  end;
+end;
 
 [UninstallDelete]
 Type: files; Name: "{app}\*.*"

@@ -2,6 +2,7 @@ package net.andrecarbajal.mine_control_cli.config.path;
 
 import net.andrecarbajal.mine_control_cli.config.ApplicationProperties;
 import net.andrecarbajal.mine_control_cli.util.system.OsChecker;
+import org.springframework.core.env.Environment;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,9 +10,11 @@ import java.nio.file.Paths;
 
 public class ApplicationPathResolver {
     private final ApplicationProperties applicationProperties;
+    private final Environment environment;
 
-    public ApplicationPathResolver(ApplicationProperties applicationProperties) {
+    public ApplicationPathResolver(ApplicationProperties applicationProperties, Environment environment) {
         this.applicationProperties = applicationProperties;
+        this.environment = environment;
     }
 
     public Path getApplicationPath() {
@@ -21,7 +24,13 @@ public class ApplicationPathResolver {
             default -> System.getProperty("user.home");
         };
 
-        return Paths.get(baseFolder, applicationProperties.getName());
+        String appName = applicationProperties.getName();
+
+        if (environment.matchesProfiles("dev")) {
+            appName += "-dev";
+        }
+
+        return Paths.get(baseFolder, appName);
     }
 
     public void createApplicationPath() {
