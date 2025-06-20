@@ -1,2 +1,1 @@
-- If the CLI is reinstalled and if it was added to PATH previously, it will not be added again.
-- When using a dev profile a different location will be used
+- Include FolderNameValidator in gertFolderWithDefaults

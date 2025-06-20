@@ -132,4 +132,5 @@ jobs:
             artifacts/**/*.jar
           tag_name: ${{ github.ref_name }}
           name: MineControlCli ${{ github.ref_name }}
+          body_path: CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
