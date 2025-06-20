@@ -75,7 +75,7 @@ public class MineControlCommands extends AbstractShellComponent {
     @ShellMethod(key = {"list", "ls"}, value = "List all the servers")
     public void list() {
         try {
-            List<String[]> servers = fileUtil.getFilesInFolderWithDetails(config.getInstancesPath());
+            List<String[]> servers = fileUtil.getFilesInFolderWithDetails(config.getInstancesPath(), folderNameValidator);
 
             if (servers.isEmpty()) {
                 System.out.println("No servers found");
@@ -194,7 +194,7 @@ public class MineControlCommands extends AbstractShellComponent {
     }
 
     private String selectServer(String prompt) {
-        List<String[]> servers = fileUtil.getFilesInFolderWithDetails(config.getInstancesPath());
+        List<String[]> servers = fileUtil.getFilesInFolderWithDetails(config.getInstancesPath(), folderNameValidator);
 
         if (servers.isEmpty()) {
             System.out.println("No servers available");

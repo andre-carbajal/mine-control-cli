@@ -2,6 +2,7 @@ package net.andrecarbajal.mine_control_cli.util.io;
 
 import lombok.AllArgsConstructor;
 import net.andrecarbajal.mine_control_cli.model.ServerLoader;
+import net.andrecarbajal.mine_control_cli.validator.FolderNameValidator;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -99,49 +100,51 @@ public class FileUtil {
         }
     }
 
-    public List<String[]> getFilesInFolderWithDetails(Path folderPath) {
+    public List<String[]> getFilesInFolderWithDetails(Path folderPath, FolderNameValidator folderNameValidator) {
         try (Stream<Path> paths = Files.list(folderPath)) {
-            return paths.map(path -> {
-                String folderName = path.getFileName().toString();
-                Path infoPath = path.resolve("mineControlServer.info");
-                if (Files.exists(infoPath)) {
-                    try {
-                        List<String> lines = Files.readAllLines(infoPath);
-                        String serverLoader = lines.stream()
-                                .filter(line -> line.startsWith("serverLoader:"))
-                                .map(line -> line.split(": ", 2))
-                                .filter(parts -> parts.length == 2)
-                                .map(parts -> parts[1])
-                                .findFirst()
-                                .orElse("Unknown");
+            return paths
+                    .filter(path -> folderNameValidator.validate(path.getFileName().toString()).isValid())
+                    .map(path -> {
+                        String folderName = path.getFileName().toString();
+                        Path infoPath = path.resolve("mineControlServer.info");
+                        if (Files.exists(infoPath)) {
+                            try {
+                                List<String> lines = Files.readAllLines(infoPath);
+                                String serverLoader = lines.stream()
+                                        .filter(line -> line.startsWith("serverLoader:"))
+                                        .map(line -> line.split(": ", 2))
+                                        .filter(parts -> parts.length == 2)
+                                        .map(parts -> parts[1])
+                                        .findFirst()
+                                        .orElse("Unknown");
 
-                        String version = lines.stream()
-                                .filter(line -> line.startsWith("version:"))
-                                .map(line -> line.split(": ", 2))
-                                .filter(parts -> parts.length == 2)
-                                .map(parts -> parts[1])
-                                .findFirst()
-                                .orElse("Unknown");
+                                String version = lines.stream()
+                                        .filter(line -> line.startsWith("version:"))
+                                        .map(line -> line.split(": ", 2))
+                                        .filter(parts -> parts.length == 2)
+                                        .map(parts -> parts[1])
+                                        .findFirst()
+                                        .orElse("Unknown");
 
-                        String loader = lines.stream()
-                                .filter(line -> line.startsWith("loader:"))
-                                .map(line -> line.split(": ", 2))
-                                .filter(parts -> parts.length == 2)
-                                .map(parts -> parts[1])
-                                .findFirst()
-                                .orElse(null);
+                                String loader = lines.stream()
+                                        .filter(line -> line.startsWith("loader:"))
+                                        .map(line -> line.split(": ", 2))
+                                        .filter(parts -> parts.length == 2)
+                                        .map(parts -> parts[1])
+                                        .findFirst()
+                                        .orElse(null);
 
-                        if (loader != null)
-                            return new String[]{folderName, String.format("%s (%s-%s-%s)", folderName, serverLoader, version, loader)};
-                        else
-                            return new String[]{folderName, String.format("%s (%s-%s)", folderName, serverLoader, version)};
-                    } catch (IOException e) {
-                        return new String[]{folderName, String.format("%s (Unknown)", folderName)};
-                    }
-                } else {
-                    return new String[]{folderName, String.format("%s (Unknown)", folderName)};
-                }
-            }).toList();
+                                if (loader != null)
+                                    return new String[]{folderName, String.format("%s (%s-%s-%s)", folderName, serverLoader, version, loader)};
+                                else
+                                    return new String[]{folderName, String.format("%s (%s-%s)", folderName, serverLoader, version)};
+                            } catch (IOException e) {
+                                return new String[]{folderName, String.format("%s (Unknown)", folderName)};
+                            }
+                        } else {
+                            return new String[]{folderName, String.format("%s (Unknown)", folderName)};
+                        }
+                    }).toList();
         } catch (IOException e) {
             throw new RuntimeException("Error getting files in folder", e);
         }

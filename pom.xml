@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.andrecarbajal</groupId>
     <artifactId>mine-control-cli</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>mine-control-cli</name>
     <description>A powerful CLI tool to create, manage, and run Minecraft servers effortlessly.</description>
     <url/>
