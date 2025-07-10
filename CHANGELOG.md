@@ -1,1 +1,43 @@
-- Include FolderNameValidator in gertFolderWithDefaults
+- The application has been refactored
+
+- NeoForge loader has been added as a supported server loader.
+
+- The base directory for configuration and data is OS-dependent:
+   - Dev
+     - **Windows:** `%APPDATA%/MineControlCliDev`
+     - **macOS:** `~/Library/Application Support/MineControlCliDev`
+     - **Linux:** `~/.config/MineControlCliDev`
+  - Prod
+      - **Windows:** `%APPDATA%/MineControlCli`
+      - **macOS:** `~/Library/Application Support/MineControlCli`
+      - **Linux:** `~/.config/MineControlCli`
+    
+- The new configurations are:
+    - `update.check-on-startup` (boolean): Checks for updates when the application starts.
+    - `java.path` (string): Path to the Java executable to use.
+    - `java.min-ram` (string): Minimum RAM allocated to the server (e.g., 1G).
+    - `java.max-ram` (string): Maximum RAM allocated to the server (e.g., 2G).
+    - `paths.servers` (string): Path to the directory where servers are stored.
+    - `paths.backups` (string): Path to the directory where backups are stored.
+    - `eula.auto-accept` (boolean): Automatically accepts the Minecraft EULA.
+
+- The new commands are:
+    - Update:
+        - `update check` : Check if a new version is available
+    - Backup:
+        - `backup create` : Create a backup of the server
+        - `backup list` : List all backups
+        - `backup delete` : Delete a backup
+        - `backup restore` : Restore a backup to a server
+    - Config:
+        - `config set` : Set a configuration property
+        - `config get` : Get the value of a configuration property
+        - `config list` o `config ls` : List all configuration properties
+        - `config reset` : Reset configuration to default values
+    - Loader:
+        - `loader list` o `loader ls` : List all the server loaders
+    - Server:
+        - `server create` o `sc` : Create a new server
+        - `server list` o `sl` : List all available servers
+        - `server delete` o `sd` : Delete a server
+        - `server start` o `ss` : Start a server

@@ -1,23 +1,77 @@
 spring:
-  application:
-    name: @project.artifactId@
-    version: @project.version@
+  profiles:
+    active: prod
   main:
     banner-mode: off
+  application:
+    name: @project.name@
+    version: @project.version@
+
   shell:
-    history:
-      enabled: false
     interactive:
+      enabled: true
+    noninteractive:
+      enabled: false
+    script:
       enabled: true
     command:
       quit:
         enabled: false
-      history:
-        enabled: false
       version:
         show-build-name: true
+        show-build-version: true
         show-build-group: true
+
+app:
+  update:
+    check-on-startup: true
+
+  paths:
+    servers-dir: servers
+    backups-dir: backups
+
+  java:
+    path: java
+    min-ram: 2048M
+    max-ram: 4096M
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  shell:
+    history:
+      enabled: true
+
+app:
+  base-dir-suffix: Dev
 
 logging:
   level:
-    root: off
+    root: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  shell:
+    history:
+      enabled: false
+
+app:
+  base-dir-suffix: ""
+
+logging:
+  level:
+    root: OFF

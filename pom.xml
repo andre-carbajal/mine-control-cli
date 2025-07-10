@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>3.4.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>net.andrecarbajal</groupId>
     <artifactId>mine-control-cli</artifactId>
-    <version>1.0.3</version>
-    <name>mine-control-cli</name>
+    <version>2.0.0</version>
+    <name>MineControlCli</name>
     <description>A powerful CLI tool to create, manage, and run Minecraft servers effortlessly.</description>
     <url/>
     <licenses>
@@ -53,6 +53,12 @@
             <artifactId>json</artifactId>
             <version>20250107</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.27.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
