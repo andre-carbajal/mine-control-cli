@@ -1,1 +1,2 @@
-- Forge loader is now supported.
+- Improve RAM validation for the \d+[GMgm] format
+- Fix some texts
