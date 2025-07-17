@@ -14,12 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractForgeModdedServerCreator extends AbstractServerCreator {
+public abstract class AbstractForgeBasedModdedServerCreator extends AbstractServerCreator {
     private final LoaderType loaderType;
     private final DownloadService downloadService;
     private final ServerProcessService serverProcessService;
 
-    public AbstractForgeModdedServerCreator(LoaderType loaderType, ConfigurationManager configurationManager, DownloadService downloadService, ServerProcessService serverProcessService) {
+    public AbstractForgeBasedModdedServerCreator(LoaderType loaderType, ConfigurationManager configurationManager, DownloadService downloadService, ServerProcessService serverProcessService) {
         super(configurationManager);
         this.loaderType = loaderType;
         this.downloadService = downloadService;

@@ -52,7 +52,7 @@ public class ServerProcessService {
         }
     }
 
-    public void startNeoForgeServer(File serverDir, Path argsFilePath) {
+    public void startForgeBasedServer(File serverDir, Path argsFilePath) {
         try {
             ProcessBuilder processBuilder = createNeoForgeProcessBuilder(argsFilePath);
             processBuilder.directory(serverDir);

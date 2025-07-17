@@ -6,6 +6,7 @@ import net.andrecarbajal.mine_control_cli.service.DownloadService;
 import net.andrecarbajal.mine_control_cli.service.ServerProcessService;
 import net.andrecarbajal.mine_control_cli.service.server.base.ServerCreator;
 import net.andrecarbajal.mine_control_cli.service.server.fabric.FabricServerCreator;
+import net.andrecarbajal.mine_control_cli.service.server.forge.ForgeServerCreator;
 import net.andrecarbajal.mine_control_cli.service.server.mojang.SnapshotServerCreator;
 import net.andrecarbajal.mine_control_cli.service.server.mojang.VanillaServerCreator;
 import net.andrecarbajal.mine_control_cli.service.server.neoforge.NeoForgeServerCreator;
@@ -24,6 +25,8 @@ public class ServerCreatorFactory {
             case PAPER -> new PaperServerCreator(loaderType, configurationManager, downloadService);
             case NEOFORGE ->
                     new NeoForgeServerCreator(loaderType, configurationManager, downloadService, serverProcessService);
+            case FORGE ->
+                    new ForgeServerCreator(loaderType, configurationManager, downloadService, serverProcessService);
         };
     }
 }

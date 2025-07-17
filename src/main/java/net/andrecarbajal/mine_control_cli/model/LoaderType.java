@@ -7,7 +7,8 @@ public enum LoaderType {
     SNAPSHOT("Snapshot"),
     FABRIC("Fabric"),
     PAPER("Paper"),
-    NEOFORGE("NeoForge");
+    NEOFORGE("NeoForge"),
+    FORGE("Forge");
 
     @Getter
     private final String displayName;

@@ -157,7 +157,30 @@ public class ServerCommands extends AbstractShellComponent {
                 return;
             }
             System.out.println(TextDecorationUtil.info("Starting NeoForge server '" + serverName + "'..."));
-            serverProcessService.startNeoForgeServer(serverDir, foundArgsFile.toPath());
+            serverProcessService.startForgeBasedServer(serverDir, foundArgsFile.toPath());
+            return;
+        }
+        if (loaderType.equalsIgnoreCase("FORGE")){
+            String osName = SystemPathsUtil.getOperatingSystemName().toLowerCase();
+            String argsFileName = osName.contains("windows") ? "win_args.txt" : "unix_args.txt";
+            File librariesDir = new File(serverDir, "libraries/net/minecraftforge/forge");
+            File[] versionDirs = librariesDir.listFiles(File::isDirectory);
+            File foundArgsFile = null;
+            if (versionDirs != null) {
+                for (File vDir : versionDirs) {
+                    File candidate = new File(vDir, argsFileName);
+                    if (candidate.exists()) {
+                        foundArgsFile = candidate;
+                        break;
+                    }
+                }
+            }
+            if (foundArgsFile == null) {
+                System.out.println(TextDecorationUtil.error("No '" + argsFileName + "' found for Forge in '" + librariesDir.getAbsolutePath() + "'."));
+                return;
+            }
+            System.out.println(TextDecorationUtil.info("Starting Forge server '" + serverName + "'..."));
+            serverProcessService.startForgeBasedServer(serverDir, foundArgsFile.toPath());
             return;
         }
         File serverJar = new File(serverDir, "server.jar");
