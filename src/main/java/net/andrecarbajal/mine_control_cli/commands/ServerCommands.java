@@ -138,50 +138,14 @@ public class ServerCommands extends AbstractShellComponent {
             }
         }
         if (loaderType.equalsIgnoreCase("NEOFORGE")) {
-            String osName = SystemPathsUtil.getOperatingSystemName().toLowerCase();
-            String argsFileName = osName.contains("windows") ? "win_args.txt" : "unix_args.txt";
-            File librariesDir = new File(serverDir, "libraries/net/neoforged/neoforge");
-            File[] versionDirs = librariesDir.listFiles(File::isDirectory);
-            File foundArgsFile = null;
-            if (versionDirs != null) {
-                for (File vDir : versionDirs) {
-                    File candidate = new File(vDir, argsFileName);
-                    if (candidate.exists()) {
-                        foundArgsFile = candidate;
-                        break;
-                    }
-                }
-            }
-            if (foundArgsFile == null) {
-                System.out.println(TextDecorationUtil.error("No '" + argsFileName + "' found for NeoForge in '" + librariesDir.getAbsolutePath() + "'."));
+            if (startForgeBasedServer(serverDir, serverName, "NeoForge", "libraries/net/neoforged/neoforge")) {
                 return;
             }
-            System.out.println(TextDecorationUtil.info("Starting NeoForge server '" + serverName + "'..."));
-            serverProcessService.startForgeBasedServer(serverDir, foundArgsFile.toPath());
-            return;
         }
         if (loaderType.equalsIgnoreCase("FORGE")){
-            String osName = SystemPathsUtil.getOperatingSystemName().toLowerCase();
-            String argsFileName = osName.contains("windows") ? "win_args.txt" : "unix_args.txt";
-            File librariesDir = new File(serverDir, "libraries/net/minecraftforge/forge");
-            File[] versionDirs = librariesDir.listFiles(File::isDirectory);
-            File foundArgsFile = null;
-            if (versionDirs != null) {
-                for (File vDir : versionDirs) {
-                    File candidate = new File(vDir, argsFileName);
-                    if (candidate.exists()) {
-                        foundArgsFile = candidate;
-                        break;
-                    }
-                }
-            }
-            if (foundArgsFile == null) {
-                System.out.println(TextDecorationUtil.error("No '" + argsFileName + "' found for Forge in '" + librariesDir.getAbsolutePath() + "'."));
+            if (startForgeBasedServer(serverDir, serverName, "Forge", "libraries/net/minecraftforge/forge")) {
                 return;
             }
-            System.out.println(TextDecorationUtil.info("Starting Forge server '" + serverName + "'..."));
-            serverProcessService.startForgeBasedServer(serverDir, foundArgsFile.toPath());
-            return;
         }
         File serverJar = new File(serverDir, "server.jar");
         if (!serverJar.exists()) {
@@ -190,5 +154,29 @@ public class ServerCommands extends AbstractShellComponent {
         }
         System.out.println(TextDecorationUtil.info("Starting server '" + serverName + "'..."));
         serverProcessService.startServer(serverDir, serverJar.toPath());
+    }
+
+    private boolean startForgeBasedServer(File serverDir, String serverName, String loaderType, String librariesSubPath) {
+        String osName = SystemPathsUtil.getOperatingSystemName().toLowerCase();
+        String argsFileName = osName.contains("windows") ? "win_args.txt" : "unix_args.txt";
+        File librariesDir = new File(serverDir, librariesSubPath);
+        File[] versionDirs = librariesDir.listFiles(File::isDirectory);
+        File foundArgsFile = null;
+        if (versionDirs != null) {
+            for (File vDir : versionDirs) {
+                File candidate = new File(vDir, argsFileName);
+                if (candidate.exists()) {
+                    foundArgsFile = candidate;
+                    break;
+                }
+            }
+        }
+        if (foundArgsFile == null) {
+            System.out.println(TextDecorationUtil.error("No '" + argsFileName + "' found for " + loaderType + " in '" + librariesDir.getAbsolutePath() + "'."));
+            return false;
+        }
+        System.out.println(TextDecorationUtil.info("Starting " + loaderType + " server '" + serverName + "'..."));
+        serverProcessService.startForgeBasedServer(serverDir, foundArgsFile.toPath());
+        return true;
     }
 }

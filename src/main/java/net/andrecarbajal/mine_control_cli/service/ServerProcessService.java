@@ -19,100 +19,76 @@ public class ServerProcessService {
     private ConfigurationManager configProperties;
 
     public void startServer(File serverPath, Path jarFilePath) {
-        try {
-            ProcessBuilder processBuilder = createStartProcessBuilder(jarFilePath);
-            processBuilder.directory(serverPath);
-            processBuilder.redirectErrorStream(true);
-
-            Process process = processBuilder.start();
-
-            Thread outputThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                } catch (IOException e) {
-                    System.out.println(TextDecorationUtil.error("Error reading process output: " + e.getMessage()));
-                }
-            });
-            outputThread.start();
-
-            Thread inputThread = getThread(process);
-
-            int exitCode = process.waitFor();
-            System.out.println(TextDecorationUtil.success("Server exited with code: " + exitCode));
-            System.out.println(TextDecorationUtil.info("Press enter to exit..."));
-
-            inputThread.interrupt();
-            inputThread.join();
-        } catch (IOException | InterruptedException e) {
-            System.out.println(TextDecorationUtil.error("Error starting server: " + e.getMessage()));
-            throw new RuntimeException("Failed to start server process", e);
-        }
+        runProcessWithInputOutput(
+                createStartProcessBuilder(jarFilePath),
+                serverPath,
+                "Server exited with code: ",
+                "Error starting server: ",
+                true
+        );
     }
 
     public void startForgeBasedServer(File serverDir, Path argsFilePath) {
-        try {
-            ProcessBuilder processBuilder = createNeoForgeProcessBuilder(argsFilePath);
-            processBuilder.directory(serverDir);
-            processBuilder.redirectErrorStream(true);
-
-            Process process = processBuilder.start();
-
-            Thread outputThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                } catch (IOException e) {
-                    System.out.println(TextDecorationUtil.error("Error reading process output: " + e.getMessage()));
-                }
-            });
-            outputThread.start();
-
-            Thread inputThread = getThread(process);
-
-            int exitCode = process.waitFor();
-            System.out.println(TextDecorationUtil.success("Server exited with code: " + exitCode));
-            System.out.println(TextDecorationUtil.info("Press enter to exit..."));
-
-            inputThread.interrupt();
-            inputThread.join();
-        } catch (IOException | InterruptedException e) {
-            System.out.println(TextDecorationUtil.error("Error starting NeoForge server: " + e.getMessage()));
-            throw new RuntimeException("Failed to start NeoForge server process", e);
-        }
+        runProcessWithInputOutput(
+                createNeoForgeProcessBuilder(argsFilePath),
+                serverDir,
+                "Server exited with code: ",
+                "Error starting NeoForge server: ",
+                true
+        );
     }
 
     public void startInstaller(File serverPath, Path jarFilePath) {
+        runProcessWithInputOutput(
+                createInstallerProcessBuilder(jarFilePath),
+                serverPath,
+                "The installation has completed with code:",
+                "Error installing server: ",
+                false
+        );
+    }
+
+    private void runProcessWithInputOutput(ProcessBuilder processBuilder, File directory, String successMsg, String errorMsg, boolean withInput) {
         try {
-            ProcessBuilder processBuilder = createInstallerProcessBuilder(jarFilePath);
-            processBuilder.directory(serverPath);
+            processBuilder.directory(directory);
             processBuilder.redirectErrorStream(true);
 
             Process process = processBuilder.start();
 
-            Thread outputThread = new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                } catch (IOException e) {
-                    System.out.println(TextDecorationUtil.error("Error reading process output: " + e.getMessage()));
-                }
-            });
-            outputThread.start();
+            Thread outputThread = getOutputThread(process);
+
+            Thread inputThread = null;
+            if (withInput) {
+                inputThread = getThread(process);
+            }
 
             int exitCode = process.waitFor();
             outputThread.join();
-            System.out.println(TextDecorationUtil.success("The installation has completed with code:" + exitCode));
+            System.out.println(TextDecorationUtil.success(successMsg + exitCode));
+            if (withInput) {
+                System.out.println(TextDecorationUtil.info("Press enter to exit..."));
+                inputThread.interrupt();
+                inputThread.join();
+            }
         } catch (IOException | InterruptedException e) {
-            System.out.println(TextDecorationUtil.error("Error installing server: " + e.getMessage()));
-            throw new RuntimeException("Failed to install server process", e);
+            System.out.println(TextDecorationUtil.error(errorMsg + e.getMessage()));
+            throw new RuntimeException(errorMsg, e);
         }
+    }
+
+    private static Thread getOutputThread(Process process) {
+        Thread outputThread = new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                System.out.println(TextDecorationUtil.error("Error reading process output: " + e.getMessage()));
+            }
+        });
+        outputThread.start();
+        return outputThread;
     }
 
     private static Thread getThread(Process process) {
@@ -135,7 +111,7 @@ public class ServerProcessService {
         return inputThread;
     }
 
-    private ProcessBuilder createStartProcessBuilder(Path jarFilePath) {
+    private ProcessBuilder createProcessBuilder(String... args) {
         String maxRam = configProperties.getString("java.max-ram");
         String minRam = configProperties.getString("java.min-ram");
         String javaPath = configProperties.getString("java.path");
@@ -143,14 +119,20 @@ public class ServerProcessService {
                 "  Min RAM: " + TextDecorationUtil.cyan(minRam) + "\n" +
                 "  Max RAM: " + TextDecorationUtil.cyan(maxRam) + "\n" +
                 "  Java Path: " + TextDecorationUtil.green(javaPath)));
-        return new ProcessBuilder(javaPath, "-Xms" + minRam, "-Xmx" + maxRam, "-jar", jarFilePath.toString(), "nogui");
+
+        String[] baseArgs = new String[] { javaPath, "-Xms" + minRam, "-Xmx" + maxRam };
+        String[] fullArgs = new String[baseArgs.length + args.length];
+        System.arraycopy(baseArgs, 0, fullArgs, 0, baseArgs.length);
+        System.arraycopy(args, 0, fullArgs, baseArgs.length, args.length);
+        return new ProcessBuilder(fullArgs);
+    }
+
+    private ProcessBuilder createStartProcessBuilder(Path jarFilePath) {
+        return createProcessBuilder("-jar", jarFilePath.toString(), "nogui");
     }
 
     private ProcessBuilder createNeoForgeProcessBuilder(Path argsFilePath) {
-        String maxRam = configProperties.getString("java.max-ram");
-        String minRam = configProperties.getString("java.min-ram");
-        String javaPath = configProperties.getString("java.path");
-        return new ProcessBuilder(javaPath, "-Xms" + minRam, "-Xmx" + maxRam, "@" + argsFilePath.toString(), "nogui");
+        return createProcessBuilder("@" + argsFilePath.toString(), "nogui");
     }
 
     private ProcessBuilder createInstallerProcessBuilder(Path jarFilePath) {
