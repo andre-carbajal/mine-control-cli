@@ -6,7 +6,6 @@ import net.andrecarbajal.mine_control_cli.config.properties.ApplicationPropertie
 import net.andrecarbajal.mine_control_cli.config.properties.SpringApplicationProperties;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.SystemPathsUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -21,9 +20,6 @@ public class PathsConfiguration {
     private final SpringApplicationProperties springApplicationProperties;
     private final ApplicationProperties applicationProperties;
     private Path baseDir;
-
-    @Value("${app.base-dir-suffix:Dev}")
-    private String baseDirSuffix;
 
     @EventListener(ContextRefreshedEvent.class)
     public void initializePaths() {
@@ -44,7 +40,7 @@ public class PathsConfiguration {
     }
 
     private Path determineBaseDirectory() {
-        return SystemPathsUtil.getSystemConfigDir(springApplicationProperties.getName() + baseDirSuffix);
+        return SystemPathsUtil.getSystemConfigDir(springApplicationProperties.getName());
     }
 
     public Path getServersDir() {

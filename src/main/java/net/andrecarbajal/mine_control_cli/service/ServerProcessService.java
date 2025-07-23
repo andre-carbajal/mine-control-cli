@@ -22,9 +22,7 @@ public class ServerProcessService {
         runProcessWithInputOutput(
                 createStartProcessBuilder(jarFilePath),
                 serverPath,
-                "Server exited with code: ",
-                "Error starting server: ",
-                true
+                "Error starting server: "
         );
     }
 
@@ -32,23 +30,27 @@ public class ServerProcessService {
         runProcessWithInputOutput(
                 createNeoForgeProcessBuilder(argsFilePath),
                 serverDir,
-                "Server exited with code: ",
-                "Error starting NeoForge server: ",
-                true
+                "Error starting NeoForge server: "
         );
     }
 
-    public void startInstaller(File serverPath, Path jarFilePath) {
-        runProcessWithInputOutput(
-                createInstallerProcessBuilder(jarFilePath),
-                serverPath,
-                "The installation has completed with code:",
-                "Error installing server: ",
-                false
-        );
+    public int startInstaller(File serverPath, Path jarFilePath) {
+        try {
+            ProcessBuilder processBuilder = createInstallerProcessBuilder(jarFilePath);
+            processBuilder.directory(serverPath);
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            Thread outputThread = getOutputThread(process);
+            int exitCode = process.waitFor();
+            outputThread.join();
+            return exitCode;
+        } catch (IOException | InterruptedException e) {
+            System.out.println(TextDecorationUtil.error("Error installing server: " + e.getMessage()));
+            throw new RuntimeException("Error installing server: ", e);
+        }
     }
 
-    private void runProcessWithInputOutput(ProcessBuilder processBuilder, File directory, String successMsg, String errorMsg, boolean withInput) {
+    private void runProcessWithInputOutput(ProcessBuilder processBuilder, File directory, String errorMsg) {
         try {
             processBuilder.directory(directory);
             processBuilder.redirectErrorStream(true);
@@ -56,20 +58,14 @@ public class ServerProcessService {
             Process process = processBuilder.start();
 
             Thread outputThread = getOutputThread(process);
-
-            Thread inputThread = null;
-            if (withInput) {
-                inputThread = getThread(process);
-            }
+            Thread inputThread = getThread(process);
 
             int exitCode = process.waitFor();
             outputThread.join();
-            System.out.println(TextDecorationUtil.success(successMsg + exitCode));
-            if (withInput) {
-                System.out.println(TextDecorationUtil.info("Press enter to exit..."));
-                inputThread.interrupt();
-                inputThread.join();
-            }
+            System.out.println(TextDecorationUtil.success("Server exited with code: " + exitCode));
+            System.out.println(TextDecorationUtil.info("Press enter to exit..."));
+            inputThread.interrupt();
+            inputThread.join();
         } catch (IOException | InterruptedException e) {
             System.out.println(TextDecorationUtil.error(errorMsg + e.getMessage()));
             throw new RuntimeException(errorMsg, e);
@@ -120,7 +116,7 @@ public class ServerProcessService {
                 "  Max RAM: " + TextDecorationUtil.cyan(maxRam) + "\n" +
                 "  Java Path: " + TextDecorationUtil.green(javaPath)));
 
-        String[] baseArgs = new String[] { javaPath, "-Xms" + minRam, "-Xmx" + maxRam };
+        String[] baseArgs = new String[]{javaPath, "-Xms" + minRam, "-Xmx" + maxRam};
         String[] fullArgs = new String[baseArgs.length + args.length];
         System.arraycopy(baseArgs, 0, fullArgs, 0, baseArgs.length);
         System.arraycopy(args, 0, fullArgs, baseArgs.length, args.length);

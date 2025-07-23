@@ -34,7 +34,10 @@ public abstract class AbstractForgeBasedModdedServerCreator extends AbstractServ
                 loaderVersion = selectVersion(getLoaderVersions(minecraftVersion), "Select a loader version for the server:", loaderVersion, terminal, resourceLoader, templateExecutor);
                 String downloadUrl = getDownloadUrl(minecraftVersion, loaderVersion);
                 downloadServerFile(downloadUrl, serverName, "installer.jar", downloadService);
-                executeServerInstaller(serverName);
+                int installerExitCode = executeServerInstaller(serverName);
+                if (installerExitCode != 0) {
+                    throw new RuntimeException("Server installer failed with exit code: " + installerExitCode);
+                }
                 Map<String, String> info = new HashMap<>();
                 info.put("loaderType", loaderType.name());
                 info.put("minecraftVersion", minecraftVersion);
@@ -52,12 +55,12 @@ public abstract class AbstractForgeBasedModdedServerCreator extends AbstractServ
 
     protected abstract String getDownloadUrl(String version, String loaderVersion);
 
-    private void executeServerInstaller(String serverName) {
+    private int executeServerInstaller(String serverName) {
         Path serverPath = Path.of(configurationManager.getString("paths.servers"), serverName);
         Path jarFilePath = serverPath.resolve("installer.jar");
         if (!jarFilePath.toFile().exists()) {
             throw new RuntimeException("Installer jar not found at " + jarFilePath);
         }
-        serverProcessService.startInstaller(serverPath.toFile(), jarFilePath);
+        return serverProcessService.startInstaller(serverPath.toFile(), jarFilePath);
     }
 }

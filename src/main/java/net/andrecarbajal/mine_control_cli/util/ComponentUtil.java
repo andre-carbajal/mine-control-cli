@@ -1,7 +1,6 @@
 package net.andrecarbajal.mine_control_cli.util;
 
 import lombok.experimental.UtilityClass;
-import net.andrecarbajal.mine_control_cli.config.ConfigurationManager;
 import net.andrecarbajal.mine_control_cli.model.LoaderType;
 import org.jline.terminal.Terminal;
 import org.springframework.core.io.ResourceLoader;
@@ -11,8 +10,6 @@ import org.springframework.shell.component.StringInput;
 import org.springframework.shell.component.support.SelectorItem;
 import org.springframework.shell.style.TemplateExecutor;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -29,37 +26,24 @@ public class ComponentUtil {
         return selectGeneric(items, "Select a server loader type:", SelectorItem::getItem, LoaderType.VANILLA, terminal, resourceLoader, templateExecutor);
     }
 
-    public String selectServer(String prompt, ConfigurationManager configurationManager, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
-        String serversPath = configurationManager.getString("paths.servers");
-        File serversDir = new File(serversPath);
-        String[] serverDirsArray = serversDir.list((current, name) -> {
-            File f = new File(current, name);
-            return f.isDirectory() && !name.startsWith("._");
-        });
-        if (serverDirsArray == null || serverDirsArray.length == 0) {
+    public String selectServer(List<String> serverNames, String prompt, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
+        if (serverNames.isEmpty()) {
             System.out.println(TextDecorationUtil.error("There are no servers available."));
             return null;
         }
-        List<String> serverDirs = Arrays.asList(serverDirsArray);
-        List<SelectorItem<String>> items = serverDirs.stream().map(name -> SelectorItem.of(name, name)).toList();
+        List<SelectorItem<String>> items = serverNames.stream().map(name -> SelectorItem.of(name, name)).toList();
         return selectGeneric(items, prompt, SelectorItem::getName, null, terminal, resourceLoader, templateExecutor);
     }
 
-    public String selectBackup(String prompt, ConfigurationManager configurationManager, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
-        String backupsPath = configurationManager.getString("paths.backups");
-        File backupsDir = new File(backupsPath);
-        String[] backupFilesArray = backupsDir.list((current, name) -> {
-            File f = new File(current, name);
-            return f.isFile() && name.endsWith(".zip") && !name.startsWith("._");
-        });
-        if (backupFilesArray == null || backupFilesArray.length == 0) {
+    public String selectBackup(List<String> backupFiles, String prompt, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor) {
+        if (backupFiles.isEmpty()) {
             System.out.println(TextDecorationUtil.error("There are no backups available."));
             return null;
         }
-        List<String> backupFiles = Arrays.stream(backupFilesArray)
+        List<String> backupNames = backupFiles.stream()
                 .map(name -> name.endsWith(".zip") ? name.substring(0, name.length() - 4) : name)
                 .toList();
-        List<SelectorItem<String>> items = backupFiles.stream().map(name -> SelectorItem.of(name, name)).toList();
+        List<SelectorItem<String>> items = backupNames.stream().map(name -> SelectorItem.of(name, name)).toList();
         return selectGeneric(items, prompt, SelectorItem::getName, null, terminal, resourceLoader, templateExecutor);
     }
 

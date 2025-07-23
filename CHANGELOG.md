@@ -1,2 +1,2 @@
-- Improve RAM validation for the \d+[GMgm] format
-- Fix some texts
+- Improve error handling.
+- Refactor code for better maintainability.

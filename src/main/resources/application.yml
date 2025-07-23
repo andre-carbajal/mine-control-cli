@@ -4,7 +4,6 @@ spring:
   main:
     banner-mode: off
   application:
-    name: @project.name@
     version: @project.version@
 
   shell:
@@ -42,12 +41,12 @@ spring:
     activate:
       on-profile: dev
 
+  application:
+    name: @project.name@Dev
+
   shell:
     history:
       enabled: true
-
-app:
-  base-dir-suffix: Dev
 
 logging:
   level:
@@ -65,12 +64,12 @@ spring:
     activate:
       on-profile: prod
 
+  application:
+    name: @project.name@
+
   shell:
     history:
       enabled: false
-
-app:
-  base-dir-suffix: ""
 
 logging:
   level:

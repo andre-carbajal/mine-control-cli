@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.andrecarbajal.mine_control_cli.config.properties.ApplicationProperties;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.TextDecorationUtil;
-import net.andrecarbajal.mine_control_cli.validator.config.DirectoryValidator;
-import net.andrecarbajal.mine_control_cli.validator.config.JavaPathValidator;
-import net.andrecarbajal.mine_control_cli.validator.config.RamValidator;
-import net.andrecarbajal.mine_control_cli.validator.core.IValidator;
+import net.andrecarbajal.mine_control_cli.validator.ConfigValidator;
 import net.andrecarbajal.mine_control_cli.validator.core.ValidationResult;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -27,6 +24,7 @@ import java.util.Properties;
 public class ConfigurationManager {
     private final PathsConfiguration pathsConfiguration;
     private final ApplicationProperties applicationProperties;
+    private final ConfigValidator configValidator;
 
     private Properties userConfig;
     private Map<String, Object> defaultConfig;
@@ -93,17 +91,14 @@ public class ConfigurationManager {
         boolean changed = false;
         for (String key : userConfig.stringPropertyNames()) {
             String value = userConfig.getProperty(key);
-            IValidator<String> validator = getValidatorForKey(key);
-            if (validator != null) {
-                ValidationResult result = validator.validate(value);
-                if (result.isNotValid()) {
-                    Object defaultValue = defaultConfig.get(key);
-                    System.out.println(TextDecorationUtil.error("Invalid configuration for '" + key + "': " + value + ". Resetting to default value: " + defaultValue));
-                    if (defaultValue != null) {
-                        userConfig.setProperty(key, String.valueOf(defaultValue));
-                        System.out.println("[MineControl] The configuration '" + key + "' was invalid ('" + value + "') and has been reset to the default value: '" + defaultValue + "'.");
-                        changed = true;
-                    }
+            ValidationResult result = configValidator.validate(key, value);
+            if (result.isNotValid()) {
+                Object defaultValue = defaultConfig.get(key);
+                System.out.println(TextDecorationUtil.error("Invalid configuration for '" + key + "': " + value + ". Resetting to default value: " + defaultValue));
+                if (defaultValue != null) {
+                    userConfig.setProperty(key, String.valueOf(defaultValue));
+                    System.out.println(TextDecorationUtil.error("The configuration '" + key + "' was invalid ('" + value + "') and has been reset to the default value: '" + defaultValue + "'."));
+                    changed = true;
                 }
             }
         }
@@ -176,30 +171,14 @@ public class ConfigurationManager {
     }
 
     public boolean setProperty(String key, String value) {
-        IValidator<String> validator = getValidatorForKey(key);
-        if (validator != null) {
-            ValidationResult result = validator.validate(value);
-            if (result.isNotValid()) {
-                return false;
-            }
+        ValidationResult result = configValidator.validate(key, value);
+        if (result.isNotValid()) {
+            System.out.println(TextDecorationUtil.error("Invalid value for '" + key + "': " + value));
+            return false;
         }
         userConfig.setProperty(key, value);
         saveUserConfig();
         return true;
-    }
-
-    private IValidator<String> getValidatorForKey(String key) {
-        if (key.equals("java.path")) {
-            return new JavaPathValidator();
-        } else if (key.equals("java.min-ram") || key.equals("java.max-ram")) {
-            return new RamValidator();
-        } else if (key.startsWith("paths.")) {
-            return path -> {
-                DirectoryValidator dirValidator = new DirectoryValidator();
-                return dirValidator.validate(Path.of(path));
-            };
-        }
-        return null;
     }
 
     private void saveUserConfig() {

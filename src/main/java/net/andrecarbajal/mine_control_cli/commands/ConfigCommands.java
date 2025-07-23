@@ -58,7 +58,6 @@ public class ConfigCommands extends AbstractShellComponent {
 
         boolean success = configurationManager.setProperty(key, value);
         if (!success) {
-            System.out.println(TextDecorationUtil.error("Failed to update the configuration property '" + key + "'."));
             return;
         }
         System.out.println(TextDecorationUtil.success("Configuration property '" + key + "' updated from '" + currentValue + "' to '" + value + "'."));
