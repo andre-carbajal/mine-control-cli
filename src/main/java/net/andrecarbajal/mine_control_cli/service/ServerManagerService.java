@@ -20,7 +20,9 @@ public class ServerManagerService {
 
     public List<String> listServers() {
         String serversPath = configurationManager.getString("paths.servers");
-        return FileUtil.listDirectories(serversPath);
+        List<String> servers = FileUtil.listDirectories(serversPath);
+        servers.sort(String::compareToIgnoreCase);
+        return servers;
     }
 
     public void deleteServer(String serverName) {
