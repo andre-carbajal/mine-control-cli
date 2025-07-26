@@ -33,6 +33,9 @@ looking to expand our support for more loaders.
 - **List Available Loaders**: Quickly see which loaders are available for your server.
 - **Update check**: keep your MineControlCli up-to-date with the latest features and fixes.
 - **Configuration Management**: Easily manage your MineControlCli configuration file from the command line.
+- **Remove Unused Chunks**: Remove unused chunks from your world using the Potato Peeler Tool, which helps optimize your
+  server's size. More information can be found in
+  the [Potato Peeler documentation](https://github.com/Bottle-M/PotatoPeeler).
 
 More information about the features and the commands can be found in
 the [Wiki](https://github.com/andre-carbajal/mine-control-cli/wiki)
@@ -40,17 +43,19 @@ the [Wiki](https://github.com/andre-carbajal/mine-control-cli/wiki)
 ---
 
 ## 💻 Supported Platforms
-| OS      | Status         | Notes                |
-|---------|----------------|----------------------|
-| Windows | ✅ Full support | Windows 10/11        |
-| Linux   | ✅ Full support | Systemd integration  |
-| macOS   | ✅ Full support | Intel / Silicon      |
+
+| OS      | Status         | Notes               |
+|---------|----------------|---------------------|
+| Windows | ✅ Full support | Windows 10/11       |
+| Linux   | ✅ Full support | Systemd integration |
+| macOS   | ✅ Full support | Intel / Silicon     |
 
 ---
 
 ## 📚 More Information
 
-For details about installation, available commands, and configuration, visit the [project Wiki](https://github.com/andre-carbajal/mine-control-cli/wiki).
+For details about installation, available commands, and configuration, visit
+the [project Wiki](https://github.com/andre-carbajal/mine-control-cli/wiki).
 
 ---
 
