@@ -23,65 +23,72 @@ public class PotatoPeelerService {
 
     public void removeUnusedChunks(String serverName, String loaderType) {
         try {
-            if (!configurationManager.getBoolean("potato-peeler.enabled")) return;
-            File potatoPeelerPath = new File(pathsConfiguration.getBaseDir().toFile(), "potatopeeler");
-            Path jarPathToUse = null;
+            File potatoPeelerPath = getPotatoPeelerPath();
+            Path jarPathToUse;
             if (Files.exists(potatoPeelerPath.toPath())) {
-                try (var stream = Files.list(potatoPeelerPath.toPath())) {
-                    Path jarPath = stream
-                            .filter(p -> p.getFileName().toString().matches("PotatoPeeler-.*-java\\d+\\.jar"))
-                            .findFirst()
-                            .orElse(null);
-                    if (jarPath == null) {
-                        if (githubService.getLatestReleaseAssetList().isPresent()) {
-                            downloadService.downloadFile(githubService.getLatestReleaseAssetList().get().getFirst().getBrowserDownloadUrl(), potatoPeelerPath.toPath());
-                            try (var newStream = Files.list(potatoPeelerPath.toPath())) {
-                                jarPathToUse = newStream
-                                        .filter(p -> p.getFileName().toString().matches("PotatoPeeler-.*-java\\d+\\.jar"))
-                                        .findFirst()
-                                        .orElse(null);
-                            }
-                        }
-                    } else {
-                        String fileName = jarPath.getFileName().toString();
-                        String version = fileName.replaceAll("PotatoPeeler-(.*)-java\\d+\\.jar", "$1");
-                        boolean isLatest = githubService.isCurrentVersionLatest(version);
-                        if (!isLatest) {
-                            if (githubService.getLatestReleaseAssetList().isPresent()) {
-                                Files.delete(jarPath);
-                                downloadService.downloadFile(githubService.getLatestReleaseAssetList().get().getFirst().getBrowserDownloadUrl(), potatoPeelerPath.toPath());
-                                try (var newStream = Files.list(potatoPeelerPath.toPath())) {
-                                    jarPathToUse = newStream
-                                            .filter(p -> p.getFileName().toString().matches("PotatoPeeler-.*-java\\d+\\.jar"))
-                                            .findFirst()
-                                            .orElse(null);
-                                }
-                            }
-                        } else {
-                            jarPathToUse = jarPath;
-                        }
-                    }
+                Path jarPath = findLocalJar(potatoPeelerPath);
+                if (jarPath == null) {
+                    jarPathToUse = downloadAndSelectJar(potatoPeelerPath);
+                } else if (!isLatestVersion(jarPath)) {
+                    Files.delete(jarPath);
+                    jarPathToUse = downloadAndSelectJar(potatoPeelerPath);
+                } else {
+                    jarPathToUse = jarPath;
                 }
             } else {
-                FileUtil.createDirectoryIfNotExists(potatoPeelerPath.toPath());
-                if (githubService.getLatestReleaseAssetList().isPresent()) {
-                    downloadService.downloadFile(githubService.getLatestReleaseAssetList().get().getFirst().getBrowserDownloadUrl(), potatoPeelerPath.toPath());
-                    try (var newStream = Files.list(potatoPeelerPath.toPath())) {
-                        jarPathToUse = newStream
-                                .filter(p -> p.getFileName().toString().matches("PotatoPeeler-.*-java\\d+\\.jar"))
-                                .findFirst()
-                                .orElse(null);
-                    }
-                }
+                ensureDirectoryExists(potatoPeelerPath);
+                jarPathToUse = downloadAndSelectJar(potatoPeelerPath);
             }
-
             if (jarPathToUse != null) {
-                executionService.startPotatoPeeler(new File(configurationManager.getString("paths.servers"), serverName), jarPathToUse, loaderType);
+                executePotatoPeeler(serverName, jarPathToUse, loaderType);
+                System.out.println(TextDecorationUtil.success("Unused chunks removal process started for server '" + serverName + "'."));
             }
-        }catch (IOException ioException) {
+        } catch (IOException ioException) {
             System.out.println(TextDecorationUtil.error("Error while trying to remove unused chunks: " + ioException.getMessage()));
         } catch (Exception e) {
             System.out.println(TextDecorationUtil.error("An unexpected error occurred while trying to remove unused chunks: " + e.getMessage()));
         }
+    }
+
+    private File getPotatoPeelerPath() {
+        return new File(pathsConfiguration.getBaseDir().toFile(), "potatopeeler");
+    }
+
+    private Path findLocalJar(File potatoPeelerPath) throws IOException {
+        try (var stream = Files.list(potatoPeelerPath.toPath())) {
+            return stream
+                .filter(p -> p.getFileName().toString().matches("PotatoPeeler-.*-java\\d+\\.jar"))
+                .findFirst()
+                .orElse(null);
+        }
+    }
+
+    private boolean isLatestVersion(Path jarPath) {
+        String fileName = jarPath.getFileName().toString();
+        String version = fileName.replaceAll("PotatoPeeler-(.*)-java\\d+\\.jar", "$1");
+        return githubService.isCurrentVersionLatest(version);
+    }
+
+    private Path downloadAndSelectJar(File potatoPeelerPath) throws IOException {
+        if (githubService.getLatestReleaseAssetList().isPresent()) {
+            downloadService.downloadFile(
+                githubService.getLatestReleaseAssetList().get().getFirst().browserDownloadUrl(),
+                potatoPeelerPath.toPath()
+            );
+            return findLocalJar(potatoPeelerPath);
+        }
+        return null;
+    }
+
+    private void ensureDirectoryExists(File potatoPeelerPath) throws IOException {
+        FileUtil.createDirectoryIfNotExists(potatoPeelerPath.toPath());
+    }
+
+    private void executePotatoPeeler(String serverName, Path jarPathToUse, String loaderType) {
+        executionService.startPotatoPeeler(
+            new File(configurationManager.getString("paths.servers"), serverName),
+            jarPathToUse,
+            loaderType
+        );
     }
 }

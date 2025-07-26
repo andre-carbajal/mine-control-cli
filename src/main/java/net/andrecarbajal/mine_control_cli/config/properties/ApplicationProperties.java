@@ -40,7 +40,6 @@ public class ApplicationProperties {
 
     @Data
     public static class PotatoPeeler {
-        private boolean enabledServerStartup;
         private int chunkInhabitedTime;
     }
 }

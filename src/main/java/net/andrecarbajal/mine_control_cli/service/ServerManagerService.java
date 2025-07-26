@@ -17,7 +17,6 @@ import java.util.Properties;
 public class ServerManagerService {
     private final ConfigurationManager configurationManager;
     private final ExecutionService executionService;
-    private final PotatoPeelerService potatoPeelerService;
 
     public List<String> listServers() {
         String serversPath = configurationManager.getString("paths.servers");
@@ -25,6 +24,30 @@ public class ServerManagerService {
         servers.sort(String::compareToIgnoreCase);
         return servers;
     }
+
+    public List<String> listServersWithInfo() {
+        String serversPath = configurationManager.getString("paths.servers");
+        List<String> servers = FileUtil.listDirectories(serversPath);
+        servers.sort(String::compareToIgnoreCase);
+        return servers.stream()
+                .map(serverName -> {
+                    File serverDir = new File(serversPath, serverName);
+                    String loaderType = getLoaderType(serverDir);
+                    long sizeBytes = FileUtil.getDirectorySize(serverDir);
+                    String sizeStr = humanReadableByteCount(sizeBytes);
+                    return serverName + " (" + loaderType + ", " + sizeStr + ")";
+                })
+                .toList();
+    }
+
+    private String humanReadableByteCount(long bytes) {
+        int unit = 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = ("KMGTPE").charAt(exp - 1) + "";
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
 
     public void deleteServer(String serverName) {
         String serversPath = configurationManager.getString("paths.servers");
@@ -47,21 +70,8 @@ public class ServerManagerService {
             return;
         }
         File serverDir = new File(serversPath, serverName);
-        File infoFile = new File(serverDir, ".server-info.properties");
-        String loaderType = "VANILLA";
-        if (infoFile.exists()) {
-            Properties props = new Properties();
-            try (FileReader reader = new FileReader(infoFile)) {
-                props.load(reader);
-                loaderType = props.getProperty("loaderType", "VANILLA");
-            } catch (Exception e) {
-                System.out.println(TextDecorationUtil.error("Could not read .server-info.properties: " + e.getMessage()));
-                return;
-            }
-        }
-
-        potatoPeelerService.removeUnusedChunks(serverName, loaderType);
-
+        String loaderType = getLoaderType(serverDir);
+        if (loaderType == null) loaderType = "VANILLA";
         if (loaderType.equalsIgnoreCase("NEOFORGE")) {
             if (startForgeBasedServer(serverDir, serverName, "NeoForge", "libraries/net/neoforged/neoforge")) {
                 return;
@@ -79,6 +89,21 @@ public class ServerManagerService {
         }
         System.out.println(TextDecorationUtil.info("Starting server '" + serverName + "'..."));
         executionService.startServer(serverDir, serverJar.toPath());
+    }
+
+    public String getLoaderType(File serverDir) {
+        File infoFile = new File(serverDir, ".server-info.properties");
+        String loaderType = "VANILLA";
+        if (infoFile.exists()) {
+            Properties props = new Properties();
+            try (FileReader reader = new FileReader(infoFile)) {
+                props.load(reader);
+                loaderType = props.getProperty("loaderType", "VANILLA");
+            } catch (Exception e) {
+                System.out.println(TextDecorationUtil.error("Could not read .server-info.properties: " + e.getMessage()));
+            }
+        }
+        return loaderType;
     }
 
     private boolean startForgeBasedServer(File serverDir, String serverName, String loaderType, String librariesSubPath) {

@@ -35,7 +35,6 @@ app:
     max-ram: 4096M
 
   potato-peeler:
-    enabled-server-startup: true
     chunk-inhabited-time: 200 # 10 seconds
 
 ---

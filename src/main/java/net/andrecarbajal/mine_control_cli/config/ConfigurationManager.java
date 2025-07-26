@@ -55,7 +55,6 @@ public class ConfigurationManager {
         defaultConfig.put("eula.auto-accept", applicationProperties.getEula().isAutoAccept());
 
         // Potato Peeler configuration
-        defaultConfig.put("potato-peeler.enabled-server-startup", applicationProperties.getPotatoPeeler().isEnabledServerStartup());
         defaultConfig.put("potato-peeler.chunk-inhabited-time", applicationProperties.getPotatoPeeler().getChunkInhabitedTime());
     }
 
@@ -129,7 +128,6 @@ public class ConfigurationManager {
             // EULA
             defaultUserConfig.setProperty("eula.auto-accept", String.valueOf(applicationProperties.getEula().isAutoAccept()));
             // Potato Peeler
-            defaultUserConfig.setProperty("potato-peeler.enabled-server-startup", String.valueOf(applicationProperties.getPotatoPeeler().isEnabledServerStartup()));
             defaultUserConfig.setProperty("potato-peeler.chunk-inhabited-time", String.valueOf(applicationProperties.getPotatoPeeler().getChunkInhabitedTime()));
 
             Path configFile = pathsConfiguration.getConfigFile();
