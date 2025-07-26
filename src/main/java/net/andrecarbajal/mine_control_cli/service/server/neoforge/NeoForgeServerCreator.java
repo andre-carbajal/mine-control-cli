@@ -3,7 +3,7 @@ package net.andrecarbajal.mine_control_cli.service.server.neoforge;
 import net.andrecarbajal.mine_control_cli.config.ConfigurationManager;
 import net.andrecarbajal.mine_control_cli.model.LoaderType;
 import net.andrecarbajal.mine_control_cli.service.DownloadService;
-import net.andrecarbajal.mine_control_cli.service.ServerProcessService;
+import net.andrecarbajal.mine_control_cli.service.ExecutionService;
 import net.andrecarbajal.mine_control_cli.service.server.base.AbstractForgeBasedModdedServerCreator;
 import net.andrecarbajal.mine_control_cli.util.ApiClientUtil;
 import org.json.JSONArray;
@@ -14,8 +14,8 @@ import java.util.List;
 
 public class NeoForgeServerCreator extends AbstractForgeBasedModdedServerCreator {
 
-    public NeoForgeServerCreator(LoaderType loaderType, ConfigurationManager configurationManager, DownloadService downloadService, ServerProcessService serverProcessService) {
-        super(loaderType, configurationManager, downloadService, serverProcessService);
+    public NeoForgeServerCreator(LoaderType loaderType, ConfigurationManager configurationManager, DownloadService downloadService, ExecutionService executionService) {
+        super(loaderType, configurationManager, downloadService, executionService);
     }
 
     @Override

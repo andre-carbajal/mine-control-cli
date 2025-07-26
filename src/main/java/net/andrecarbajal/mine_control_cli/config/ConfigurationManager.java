@@ -53,6 +53,10 @@ public class ConfigurationManager {
 
         // EULA configuration
         defaultConfig.put("eula.auto-accept", applicationProperties.getEula().isAutoAccept());
+
+        // Potato Peeler configuration
+        defaultConfig.put("potato-peeler.enabled-server-startup", applicationProperties.getPotatoPeeler().isEnabledServerStartup());
+        defaultConfig.put("potato-peeler.chunk-inhabited-time", applicationProperties.getPotatoPeeler().getChunkInhabitedTime());
     }
 
     private void loadUserConfig() {
@@ -124,6 +128,9 @@ public class ConfigurationManager {
             defaultUserConfig.setProperty("java.max-ram", applicationProperties.getJava().getMaxRam());
             // EULA
             defaultUserConfig.setProperty("eula.auto-accept", String.valueOf(applicationProperties.getEula().isAutoAccept()));
+            // Potato Peeler
+            defaultUserConfig.setProperty("potato-peeler.enabled-server-startup", String.valueOf(applicationProperties.getPotatoPeeler().isEnabledServerStartup()));
+            defaultUserConfig.setProperty("potato-peeler.chunk-inhabited-time", String.valueOf(applicationProperties.getPotatoPeeler().getChunkInhabitedTime()));
 
             Path configFile = pathsConfiguration.getConfigFile();
             Files.createDirectories(configFile.getParent());

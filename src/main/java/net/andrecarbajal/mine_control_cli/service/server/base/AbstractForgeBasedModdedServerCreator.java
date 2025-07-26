@@ -3,7 +3,7 @@ package net.andrecarbajal.mine_control_cli.service.server.base;
 import net.andrecarbajal.mine_control_cli.config.ConfigurationManager;
 import net.andrecarbajal.mine_control_cli.model.LoaderType;
 import net.andrecarbajal.mine_control_cli.service.DownloadService;
-import net.andrecarbajal.mine_control_cli.service.ServerProcessService;
+import net.andrecarbajal.mine_control_cli.service.ExecutionService;
 import net.andrecarbajal.mine_control_cli.util.TextDecorationUtil;
 import org.jline.terminal.Terminal;
 import org.springframework.core.io.ResourceLoader;
@@ -17,13 +17,13 @@ import java.util.Map;
 public abstract class AbstractForgeBasedModdedServerCreator extends AbstractServerCreator {
     private final LoaderType loaderType;
     private final DownloadService downloadService;
-    private final ServerProcessService serverProcessService;
+    private final ExecutionService executionService;
 
-    public AbstractForgeBasedModdedServerCreator(LoaderType loaderType, ConfigurationManager configurationManager, DownloadService downloadService, ServerProcessService serverProcessService) {
+    public AbstractForgeBasedModdedServerCreator(LoaderType loaderType, ConfigurationManager configurationManager, DownloadService downloadService, ExecutionService executionService) {
         super(configurationManager);
         this.loaderType = loaderType;
         this.downloadService = downloadService;
-        this.serverProcessService = serverProcessService;
+        this.executionService = executionService;
     }
 
     @Override
@@ -61,6 +61,6 @@ public abstract class AbstractForgeBasedModdedServerCreator extends AbstractServ
         if (!jarFilePath.toFile().exists()) {
             throw new RuntimeException("Installer jar not found at " + jarFilePath);
         }
-        return serverProcessService.startInstaller(serverPath.toFile(), jarFilePath);
+        return executionService.startInstaller(serverPath.toFile(), jarFilePath);
     }
 }

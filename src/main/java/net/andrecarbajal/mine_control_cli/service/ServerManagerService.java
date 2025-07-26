@@ -16,7 +16,8 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class ServerManagerService {
     private final ConfigurationManager configurationManager;
-    private final ServerProcessService serverProcessService;
+    private final ExecutionService executionService;
+    private final PotatoPeelerService potatoPeelerService;
 
     public List<String> listServers() {
         String serversPath = configurationManager.getString("paths.servers");
@@ -58,6 +59,9 @@ public class ServerManagerService {
                 return;
             }
         }
+
+        potatoPeelerService.removeUnusedChunks(serverName, loaderType);
+
         if (loaderType.equalsIgnoreCase("NEOFORGE")) {
             if (startForgeBasedServer(serverDir, serverName, "NeoForge", "libraries/net/neoforged/neoforge")) {
                 return;
@@ -74,7 +78,7 @@ public class ServerManagerService {
             return;
         }
         System.out.println(TextDecorationUtil.info("Starting server '" + serverName + "'..."));
-        serverProcessService.startServer(serverDir, serverJar.toPath());
+        executionService.startServer(serverDir, serverJar.toPath());
     }
 
     private boolean startForgeBasedServer(File serverDir, String serverName, String loaderType, String librariesSubPath) {
@@ -97,7 +101,7 @@ public class ServerManagerService {
             return false;
         }
         System.out.println(TextDecorationUtil.info("Starting " + loaderType + " server '" + serverName + "'..."));
-        serverProcessService.startForgeBasedServer(serverDir, foundArgsFile.toPath());
+        executionService.startForgeBasedServer(serverDir, foundArgsFile.toPath());
         return true;
     }
 }

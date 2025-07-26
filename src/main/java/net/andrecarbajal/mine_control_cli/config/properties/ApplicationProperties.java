@@ -12,6 +12,7 @@ public class ApplicationProperties {
     private Paths paths = new Paths();
     private Java java = new Java();
     private Eula eula = new Eula();
+    private PotatoPeeler potatoPeeler = new PotatoPeeler();
 
     @Data
     public static class Update {
@@ -35,5 +36,11 @@ public class ApplicationProperties {
     @Data
     public static class Eula {
         private boolean autoAccept;
+    }
+
+    @Data
+    public static class PotatoPeeler {
+        private boolean enabledServerStartup;
+        private int chunkInhabitedTime;
     }
 }

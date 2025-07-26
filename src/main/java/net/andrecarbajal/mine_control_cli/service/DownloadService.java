@@ -19,9 +19,9 @@ import java.nio.file.Path;
 public class DownloadService {
     private ProgressBar progressBar;
 
-    public void downloadFile(String url, Path serverPath, String fileName) {
+    public void downloadFile(String url, Path folderPath, String fileName) {
         System.out.println("Downloading files...");
-        Path path = serverPath.resolve(fileName);
+        Path path = folderPath.resolve(fileName);
 
         try {
             URLConnection connection = new URI(url).toURL().openConnection();
@@ -53,5 +53,9 @@ public class DownloadService {
             progressBar.reset();
         }
     }
-}
 
+    public void downloadFile(String url, Path folderPath) {
+        String fileName = url.substring(url.lastIndexOf('/') + 1);
+        downloadFile(url, folderPath, fileName);
+    }
+}

@@ -5,7 +5,7 @@ import net.andrecarbajal.mine_control_cli.config.ConfigurationManager;
 import net.andrecarbajal.mine_control_cli.model.LoaderType;
 import net.andrecarbajal.mine_control_cli.service.DownloadService;
 import net.andrecarbajal.mine_control_cli.service.ServerManagerService;
-import net.andrecarbajal.mine_control_cli.service.ServerProcessService;
+import net.andrecarbajal.mine_control_cli.service.ExecutionService;
 import net.andrecarbajal.mine_control_cli.service.server.base.ServerCreator;
 import net.andrecarbajal.mine_control_cli.service.server.factory.ServerCreatorFactory;
 import net.andrecarbajal.mine_control_cli.util.ComponentUtil;
@@ -22,7 +22,7 @@ import java.util.List;
 public class ServerCommands extends AbstractShellComponent {
     private final ConfigurationManager configurationManager;
     private final DownloadService downloadService;
-    private final ServerProcessService serverProcessService;
+    private final ExecutionService executionService;
     private final ServerManagerService serverManagerService;
 
     @ShellMethod(key = {"server create", "sc"}, value = "Create a new server")
@@ -54,7 +54,7 @@ public class ServerCommands extends AbstractShellComponent {
             selectedLoaderType = ComponentUtil.selectLoaderType(getTerminal(), getResourceLoader(), getTemplateExecutor());
         }
 
-        ServerCreator creator = ServerCreatorFactory.getCreator(selectedLoaderType, configurationManager, downloadService, serverProcessService);
+        ServerCreator creator = ServerCreatorFactory.getCreator(selectedLoaderType, configurationManager, downloadService, executionService);
         creator.createServer(serverName, loaderVersion, minecraftVersion, getTerminal(), getResourceLoader(), getTemplateExecutor());
     }
 
