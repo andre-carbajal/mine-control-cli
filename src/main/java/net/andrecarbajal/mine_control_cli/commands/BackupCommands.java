@@ -50,7 +50,7 @@ public class BackupCommands extends AbstractShellComponent {
 
     @ShellMethod(key = "backup list", value = "List all backups")
     public void listBackups() {
-        List<String> backupFiles = backupService.listBackups();
+        List<String> backupFiles = backupService.listBackupsWithSize();
         if (backupFiles.isEmpty()) {
             System.out.println(TextDecorationUtil.info("There are no backups available."));
             return;

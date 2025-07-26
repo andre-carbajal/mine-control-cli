@@ -2,6 +2,7 @@ package net.andrecarbajal.mine_control_cli.service;
 
 import lombok.RequiredArgsConstructor;
 import net.andrecarbajal.mine_control_cli.config.ConfigurationManager;
+import net.andrecarbajal.mine_control_cli.util.ConversionUtil;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.ProgressBar;
 import net.andrecarbajal.mine_control_cli.util.TextDecorationUtil;
@@ -104,6 +105,18 @@ public class BackupService {
             return new ArrayList<>();
         }
         return List.of(backupFilesArray);
+    }
+
+    public List<String> listBackupsWithSize() {
+        var backupFilesArray = listBackups();
+        List<String> result = new ArrayList<>();
+        for (String backupName : backupFilesArray) {
+            File backupFile = new File(configurationManager.getString("paths.backups"), backupName);
+            long sizeBytes = backupFile.length();
+            String sizeStr = ConversionUtil.humanReadableByteCount(sizeBytes);
+            result.add(backupName + " (" + sizeStr + ")");
+        }
+        return result;
     }
 
     public void deleteBackup(String backupName) {

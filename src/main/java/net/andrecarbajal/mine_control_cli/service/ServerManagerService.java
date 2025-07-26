@@ -2,6 +2,7 @@ package net.andrecarbajal.mine_control_cli.service;
 
 import lombok.RequiredArgsConstructor;
 import net.andrecarbajal.mine_control_cli.config.ConfigurationManager;
+import net.andrecarbajal.mine_control_cli.util.ConversionUtil;
 import net.andrecarbajal.mine_control_cli.util.FileUtil;
 import net.andrecarbajal.mine_control_cli.util.SystemPathsUtil;
 import net.andrecarbajal.mine_control_cli.util.TextDecorationUtil;
@@ -32,22 +33,31 @@ public class ServerManagerService {
         return servers.stream()
                 .map(serverName -> {
                     File serverDir = new File(serversPath, serverName);
-                    String loaderType = getLoaderType(serverDir);
+                    Properties props = new Properties();
+                    String version = "unknown";
+                    String loaderType = "unknown";
+                    String loaderVersion = null;
+                    File infoFile = new File(serverDir, ".server-info.properties");
+                    if (infoFile.exists()) {
+                        try (FileReader reader = new FileReader(infoFile)) {
+                            props.load(reader);
+                            version = props.getProperty("minecraftVersion", "unknown");
+                            loaderType = props.getProperty("loaderType", "unknown");
+                            loaderVersion = props.getProperty("loaderVersion", null);
+                        } catch (Exception ignored) {
+                        }
+                    }
                     long sizeBytes = FileUtil.getDirectorySize(serverDir);
-                    String sizeStr = humanReadableByteCount(sizeBytes);
-                    return serverName + " (" + loaderType + ", " + sizeStr + ")";
+                    String sizeStr = ConversionUtil.humanReadableByteCount(sizeBytes);
+                    String info = serverName + " (" + version + "," + loaderType;
+                    if (loaderVersion != null && !loaderVersion.isBlank()) {
+                        info += ", " + loaderVersion;
+                    }
+                    info += ") (" + sizeStr + ")";
+                    return info;
                 })
                 .toList();
     }
-
-    private String humanReadableByteCount(long bytes) {
-        int unit = 1024;
-        if (bytes < unit) return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = ("KMGTPE").charAt(exp - 1) + "";
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-    }
-
 
     public void deleteServer(String serverName) {
         String serversPath = configurationManager.getString("paths.servers");

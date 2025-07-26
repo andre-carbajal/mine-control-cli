@@ -77,4 +77,20 @@ public class FileUtil {
             System.out.println(TextDecorationUtil.error("Error writing server info: " + e.getMessage()));
         }
     }
+
+    public long getDirectorySize(File dir) {
+        if (!dir.exists() || !dir.isDirectory()) return 0L;
+        long size = 0;
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    size += file.length();
+                } else {
+                    size += getDirectorySize(file);
+                }
+            }
+        }
+        return size;
+    }
 }

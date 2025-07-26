@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import net.andrecarbajal.mine_control_cli.config.ConfigurationManager;
 import net.andrecarbajal.mine_control_cli.model.LoaderType;
 import net.andrecarbajal.mine_control_cli.service.DownloadService;
-import net.andrecarbajal.mine_control_cli.service.ServerManagerService;
 import net.andrecarbajal.mine_control_cli.service.ExecutionService;
+import net.andrecarbajal.mine_control_cli.service.ServerManagerService;
 import net.andrecarbajal.mine_control_cli.service.server.base.ServerCreator;
 import net.andrecarbajal.mine_control_cli.service.server.factory.ServerCreatorFactory;
 import net.andrecarbajal.mine_control_cli.util.ComponentUtil;
@@ -60,7 +60,7 @@ public class ServerCommands extends AbstractShellComponent {
 
     @ShellMethod(key = {"server list", "sl"}, value = "List all available servers")
     public void list() {
-        List<String> serverDirs = serverManagerService.listServers();
+        List<String> serverDirs = serverManagerService.listServersWithInfo();
         if (serverDirs.isEmpty()) {
             System.out.println(TextDecorationUtil.info("There are no servers available."));
             return;
