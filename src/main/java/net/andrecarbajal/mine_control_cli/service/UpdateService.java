@@ -19,7 +19,8 @@ public class UpdateService {
 
     public void showUpdateMessage(boolean showLatestVersion) {
         Optional<String> updateInfoOpt = githubService.getLatestReleaseTag();
-        if (updateInfoOpt.isPresent() && githubService.isCurrentVersionLatest(springApplicationProperties.getVersion())) {
+        boolean isLatest = githubService.isCurrentVersionLatest(springApplicationProperties.getVersion());
+        if (updateInfoOpt.isPresent() && !isLatest) {
             System.out.println(TextDecorationUtil.info("A new version is available: ") + TextDecorationUtil.cyan(updateInfoOpt.get()));
             System.out.println(TextDecorationUtil.info("Download it at: ") + TextDecorationUtil.green(DOWNLOAD_URL));
         } else if (showLatestVersion) {
