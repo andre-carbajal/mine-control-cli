@@ -1,21 +1,21 @@
-package net.andrecarbajal.mine_control_cli.service.server.neoforge;
+package net.andrecarbajal.mine_control_cli.service.server;
 
 import net.andrecarbajal.mine_control_cli.config.ConfigurationManager;
-import net.andrecarbajal.mine_control_cli.model.LoaderType;
 import net.andrecarbajal.mine_control_cli.service.DownloadService;
 import net.andrecarbajal.mine_control_cli.service.ExecutionService;
-import net.andrecarbajal.mine_control_cli.service.server.base.AbstractForgeBasedModdedServerCreator;
+import net.andrecarbajal.mine_control_cli.service.server.base.AbstractServerCreator;
 import net.andrecarbajal.mine_control_cli.util.ApiClientUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class NeoForgeServerCreator extends AbstractForgeBasedModdedServerCreator {
+public class NeoForgeServerCreator extends AbstractServerCreator {
 
-    public NeoForgeServerCreator(LoaderType loaderType, ConfigurationManager configurationManager, DownloadService downloadService, ExecutionService executionService) {
-        super(loaderType, configurationManager, downloadService, executionService);
+    public NeoForgeServerCreator(ConfigurationManager configurationManager, DownloadService downloadService, ExecutionService executionService) {
+        super(configurationManager, downloadService, executionService);
     }
 
     @Override
@@ -64,7 +64,29 @@ public class NeoForgeServerCreator extends AbstractForgeBasedModdedServerCreator
     }
 
     @Override
-    protected String getDownloadUrl(String version, String loaderVersion) {
+    protected String getDownloadUrl(String minecraftVersion, String loaderVersion) {
         return "https://maven.neoforged.net/releases/net/neoforged/neoforge/" + loaderVersion + "/neoforge-" + loaderVersion + "-installer.jar";
+    }
+
+    @Override
+    protected String getDownloadedFileName() {
+        return "installer.jar";
+    }
+
+    @Override
+    protected boolean executePostDownloadSteps() {
+        return true;
+    }
+
+    @Override
+    protected void populateServerInfo(Map<String, String> info, String minecraftVersion, String loaderVersion) {
+        info.put("loaderType", "NeoForge");
+        info.put("minecraftVersion", minecraftVersion);
+        info.put("loaderVersion", loaderVersion);
+    }
+
+    @Override
+    protected String getSuccessMessage(String serverName, String minecraftVersion) {
+        return String.format("The NeoForge server %s has been created successfully with Minecraft version %s", serverName, minecraftVersion);
     }
 }

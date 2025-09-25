@@ -6,8 +6,8 @@ import net.andrecarbajal.mine_control_cli.model.LoaderType;
 import net.andrecarbajal.mine_control_cli.service.DownloadService;
 import net.andrecarbajal.mine_control_cli.service.ExecutionService;
 import net.andrecarbajal.mine_control_cli.service.ServerManagerService;
-import net.andrecarbajal.mine_control_cli.service.server.base.ServerCreator;
-import net.andrecarbajal.mine_control_cli.service.server.factory.ServerCreatorFactory;
+import net.andrecarbajal.mine_control_cli.service.server.base.IServerCreator;
+import net.andrecarbajal.mine_control_cli.service.server.base.ServerCreatorFactory;
 import net.andrecarbajal.mine_control_cli.util.ComponentUtil;
 import net.andrecarbajal.mine_control_cli.util.TextDecorationUtil;
 import org.springframework.shell.standard.AbstractShellComponent;
@@ -28,9 +28,9 @@ public class ServerCommands extends AbstractShellComponent {
     @ShellMethod(key = {"server create", "sc"}, value = "Create a new server")
     public void create(
             @ShellOption(help = "Name of the server to create", defaultValue = ShellOption.NULL) String serverName,
+            @ShellOption(help = "Minecraft version for the server", defaultValue = ShellOption.NULL) String minecraftVersion,
             @ShellOption(help = "Type of server loader", defaultValue = ShellOption.NULL) String loaderType,
-            @ShellOption(help = "Loader version", defaultValue = ShellOption.NULL) String loaderVersion,
-            @ShellOption(help = "Minecraft version for the server", defaultValue = ShellOption.NULL) String minecraftVersion) {
+            @ShellOption(help = "Loader version", defaultValue = ShellOption.NULL) String loaderVersion) {
         if (serverName == null) {
             serverName = ComponentUtil.inputString("Enter the name of the server to create:", getTerminal(), getResourceLoader(), getTemplateExecutor());
             if (serverName == null || serverName.isBlank()) {
@@ -54,7 +54,7 @@ public class ServerCommands extends AbstractShellComponent {
             selectedLoaderType = ComponentUtil.selectLoaderType(getTerminal(), getResourceLoader(), getTemplateExecutor());
         }
 
-        ServerCreator creator = ServerCreatorFactory.getCreator(selectedLoaderType, configurationManager, downloadService, executionService);
+        IServerCreator creator = ServerCreatorFactory.getCreator(selectedLoaderType, configurationManager, downloadService, executionService);
         creator.createServer(serverName, loaderVersion, minecraftVersion, getTerminal(), getResourceLoader(), getTemplateExecutor());
     }
 

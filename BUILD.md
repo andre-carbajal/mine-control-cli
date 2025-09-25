@@ -1,4 +1,3 @@
-1m=]]]]'.≤µ
 ## Prerequisites
 
 - Java 21 or newer

@@ -4,7 +4,7 @@ import org.jline.terminal.Terminal;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.shell.style.TemplateExecutor;
 
-public interface ServerCreator {
+public interface IServerCreator {
     void createServer(String serverName, String loaderVersion, String minecraftVersion, Terminal terminal, ResourceLoader resourceLoader, TemplateExecutor templateExecutor);
 }
 
