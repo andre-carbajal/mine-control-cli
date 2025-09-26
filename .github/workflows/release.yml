@@ -92,7 +92,7 @@ jobs:
 
       - name: Build the Inno Setup Installer
         if: matrix.os == 'windows-latest'
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
           path: setup.iss
 

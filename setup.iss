@@ -1,5 +1,5 @@
 #define MyAppName "MineControl CLI"
-#define MyAppVersion "2.2.1"
+#define MyAppVersion "2.2.3"
 #define MyAppPublisher "Andre Carbajal"
 #define MyAppExeName "mine-control-cli.exe"
 
@@ -17,7 +17,7 @@ SolidCompression=yes
 WizardStyle=modern
 
 [Files]
-Source: "target\mine-control-cli.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "target\*.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "target\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 
 [Code]
