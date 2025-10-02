@@ -10,7 +10,7 @@
     </parent>
     <groupId>net.andrecarbajal</groupId>
     <artifactId>mine-control-cli</artifactId>
-    <version>2.2.3</version>
+    <version>2.2.4</version>
     <name>MineControlCli</name>
     <description>A powerful CLI tool to create, manage, and run Minecraft servers effortlessly.</description>
     <url/>
@@ -120,6 +120,7 @@
                     <buildArgs>
                         <buildArg>--enable-all-security-services</buildArg>
                         <buildArg>--enable-url-protocols=https</buildArg>
+                        <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
                     </buildArgs>
                 </configuration>
             </plugin>
